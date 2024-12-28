@@ -1,10 +1,13 @@
 "use client";
 import React, { JSX } from "react";
 import { Layout, Menu } from "antd";
-import { BiFoodMenu } from "react-icons/bi";
-import { GoFileMedia } from "react-icons/go";
-import { RiAdvertisementLine } from "react-icons/ri";
-import { IoVideocamOutline } from "react-icons/io5";
+import {
+  TbCalendar,
+  TbReceipt2,
+  TbLibraryPhoto,
+  TbVideo,
+  TbAd,
+} from "react-icons/tb";
 import glitzLogo from "../../public/icons/glitz_text_logo.png";
 import Image from "next/image";
 
@@ -12,12 +15,14 @@ import PriceMenu from "@/components/menu/PriceMenu";
 import Photos from "@/components/photos/Photos";
 import Videos from "@/components/videos/Videos";
 import Flyer from "@/components/flyer/Flyer";
+import Appointments from "@/components/appointments/Appointments";
 
 const { Content, Sider } = Layout;
 
 const menuItems: {
   [key: string]: JSX.Element;
 } = {
+  appointments: <Appointments />,
   menu: <PriceMenu />,
   photos: <Photos />,
   videos: <Videos />,
@@ -26,29 +31,34 @@ const menuItems: {
 
 const items = [
   {
+    key: "appointments",
+    icon: <TbCalendar />,
+    label: "Appointments",
+  },
+  {
     key: "menu",
-    icon: <BiFoodMenu />,
+    icon: <TbReceipt2 />,
     label: "Menu",
   },
   {
     key: "photos",
-    icon: <GoFileMedia />,
+    icon: <TbLibraryPhoto />,
     label: "Photos",
   },
   {
     key: "videos",
-    icon: <IoVideocamOutline />,
+    icon: <TbVideo />,
     label: "Videos",
   },
   {
     key: "flyer",
-    icon: <RiAdvertisementLine />,
+    icon: <TbAd />,
     label: "Flyer",
   },
 ];
 
 const Home: React.FC = () => {
-  const [selectedKey, setSelectedKey] = React.useState("menu");
+  const [selectedKey, setSelectedKey] = React.useState("appointments");
   return (
     <Layout>
       <Sider className="h-screen overflow-auto">

@@ -8,3 +8,7 @@
   box-sizing: border-box;
   font-family: var(--font-poppins);
 }
+
+.ant-menu-item-icon {
+  font-size: 18px !important;
+}
