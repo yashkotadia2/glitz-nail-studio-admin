@@ -1,6 +1,6 @@
 "use client";
-import React, { JSX } from "react";
-import { Layout, Menu } from "antd";
+import React, { JSX, useState } from "react";
+import { Button, Layout, Menu } from "antd";
 import {
   TbCalendar,
   TbReceipt2,
@@ -8,6 +8,7 @@ import {
   TbVideo,
   TbAd,
 } from "react-icons/tb";
+import { RiMenuFold2Fill, RiMenuUnfold2Fill } from "react-icons/ri";
 import glitzLogo from "../../public/icons/glitz_text_logo.png";
 import Image from "next/image";
 
@@ -58,13 +59,20 @@ const items = [
 ];
 
 const Home: React.FC = () => {
-  const [selectedKey, setSelectedKey] = React.useState("appointments");
+  const [selectedKey, setSelectedKey] = useState("appointments");
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <Layout>
-      <Sider className="h-screen overflow-auto">
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        className="h-screen overflow-auto relative"
+      >
         <div className="w-full bg-white py-2">
           <Image
-            width={100}
+            width={collapsed ? 40 : 100}
             src={glitzLogo}
             alt="glitz logo"
             className="m-auto"
@@ -77,7 +85,14 @@ const Home: React.FC = () => {
           items={items}
           className="h-full"
         />
+        <Button
+          type="link"
+          icon={collapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute bottom-0 right-0 mt-2 mr-2 w-12 h-12 z-50"
+        />
       </Sider>
+
       <Layout>
         <Content>
           <div className="p-4 h-screen">{menuItems[selectedKey]}</div>
