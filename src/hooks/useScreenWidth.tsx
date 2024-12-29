@@ -11,14 +11,16 @@ const getDeviceType = (width: number): DeviceType => {
 };
 
 export const useScreenWidth = (): DeviceType => {
-  const [deviceType, setDeviceType] = useState<DeviceType>(
-    getDeviceType(window.innerWidth)
-  );
+  const [deviceType, setDeviceType] = useState<DeviceType>("laptop"); // Default to "laptop" or any value
 
   useEffect(() => {
+    // Ensure this runs only on the client
     const handleResize = () => {
       setDeviceType(getDeviceType(window.innerWidth));
     };
+
+    // Set the initial value after the component mounts (client-side)
+    handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => {
