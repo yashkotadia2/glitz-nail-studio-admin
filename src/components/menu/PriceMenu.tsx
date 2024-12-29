@@ -12,8 +12,17 @@ import { message } from "antd";
 import PageLoader from "../loaders/PageLoader";
 import groupByCategory from "@/lib/groupByCategory";
 import MenuCategories from "./MenuCategories";
+import { useScreenWidth } from "@/hooks/useScreenWidth";
+
+const buttonText = {
+  mobile: "",
+  tablet: "Menu",
+  laptop: "Add Menu",
+  tv: "Add Menu",
+};
 
 const PriceMenu = () => {
+  const deviceType = useScreenWidth();
   const { getData, postData } = useAxiosAPI();
 
   const { isMenuModalOpen, setIsMenuModalOpen } = usePanelStore();
@@ -58,7 +67,11 @@ const PriceMenu = () => {
 
   return (
     <div>
-      <Header title="Menu" buttonText="Add Menu" onClick={handleMenuClick} />
+      <Header
+        title="Menu"
+        buttonText={buttonText[deviceType]}
+        onClick={handleMenuClick}
+      />
       <MenuCategories menuCategories={groupByCategory(menuItems as TMenu[])} />
       <MenuModal
         isLoading={isAddingMenu}

@@ -1,5 +1,5 @@
 "use client";
-import React, { JSX, useState } from "react";
+import React, { JSX, useEffect, useState } from "react";
 import { Button, Layout, Menu } from "antd";
 import {
   TbCalendar,
@@ -17,6 +17,7 @@ import Photos from "@/components/photos/Photos";
 import Videos from "@/components/videos/Videos";
 import Flyer from "@/components/flyer/Flyer";
 import Appointments from "@/components/appointments/Appointments";
+import { useScreenWidth } from "@/hooks/useScreenWidth";
 
 const { Content, Sider } = Layout;
 
@@ -59,8 +60,15 @@ const items = [
 ];
 
 const Home: React.FC = () => {
+  const deviceType = useScreenWidth();
   const [selectedKey, setSelectedKey] = useState("appointments");
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (deviceType === "mobile") {
+      setCollapsed(true);
+    }
+  }, [deviceType, selectedKey]);
 
   return (
     <Layout>
@@ -68,7 +76,8 @@ const Home: React.FC = () => {
         trigger={null}
         collapsible
         collapsed={collapsed}
-        className="h-screen overflow-auto relative"
+        className="h-[100dvh] overflow-auto relative bg-white"
+        collapsedWidth={deviceType === "mobile" ? 0 : 70}
       >
         <div className="w-full bg-white py-2">
           <Image
@@ -83,19 +92,21 @@ const Home: React.FC = () => {
           onClick={(e) => setSelectedKey(e.key.toString())}
           mode="inline"
           items={items}
-          className="h-full"
-        />
-        <Button
-          type="link"
-          icon={collapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
-          onClick={() => setCollapsed(!collapsed)}
-          className="absolute bottom-0 right-0 mt-2 mr-2 w-12 h-12 z-50"
+          className="h-fit"
         />
       </Sider>
+      <Button
+        style={{
+          left: collapsed ? (deviceType === "mobile" ? -1 : 69) : 199,
+        }}
+        icon={collapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
+        onClick={() => setCollapsed(!collapsed)}
+        className="absolute bottom-2 w-12 z-50 rounded-none border-l-0 opacity-60"
+      />
 
       <Layout>
         <Content>
-          <div className="p-4 h-screen">{menuItems[selectedKey]}</div>
+          <div className="p-4 h-[100dvh]">{menuItems[selectedKey]}</div>
         </Content>
       </Layout>
     </Layout>

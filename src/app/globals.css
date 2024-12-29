@@ -12,3 +12,7 @@
 .ant-menu-item-icon {
   font-size: 18px !important;
 }
+
+.ant-popover {
+  max-width: 320px;
+}

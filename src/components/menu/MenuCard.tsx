@@ -52,12 +52,13 @@ const MenuCard = ({ item }: { item: TMenu }) => {
 
   return (
     <>
-      <div className="min-w-64 max-w-sm p-5 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-        <a href="#">
-          <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {item.menuName}
-          </h5>
-        </a>
+      <div
+        title="Drag to reorder"
+        className="w-[300px] p-5 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+      >
+        <div className="line-clamp-1 mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+          {item.menuName}
+        </div>
         <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
           {item.menuDescription}
         </p>
@@ -72,7 +73,6 @@ const MenuCard = ({ item }: { item: TMenu }) => {
             />
 
             <Popconfirm
-              placement="rightBottom"
               title={
                 <div>
                   Are you sure to delete{" "}
