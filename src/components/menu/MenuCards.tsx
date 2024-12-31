@@ -1,4 +1,4 @@
-import React, { FC, useState, useCallback, useEffect } from "react";
+import React, { FC, useCallback } from "react";
 import {
   DndContext,
   closestCenter,
@@ -15,9 +15,28 @@ import {
 } from "@dnd-kit/sortable";
 import SortableMenuItem from "./SortableMenuItem"; // Ensure SortableMenuItem is properly implemented
 import { TMenu } from "@/types/types";
+import PageLoader from "@/components/loaders/PageLoader";
 
-const MenuCards: FC<{ items: TMenu[] }> = ({ items: initialItems }) => {
-  const [items, setItems] = useState(initialItems);
+import { useMutation } from "@tanstack/react-query";
+import useAxiosAPI from "@/apis/useAxios";
+import { API_ROUTES } from "@/apis/apiRoutes";
+import { useQueryClient } from "@tanstack/react-query";
+
+const MenuCards: FC<{ items: TMenu[] }> = ({ items: menuItems }) => {
+  const queryClient = useQueryClient();
+  const { putData } = useAxiosAPI();
+
+  const { mutate: reorderMenu, isPending } = useMutation({
+    mutationKey: ["reorderMenu"],
+    mutationFn: (newOrder: string[]) =>
+      putData(API_ROUTES.MENU.REORDER, null, { newOrder }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["menu"] }); // This will trigger a refetch of the menu data
+    },
+    onError: () => {
+      console.error("Error reordering menu items");
+    },
+  });
 
   // Sensors with minimum drag distance
   const sensors = useSensors(
@@ -33,21 +52,24 @@ const MenuCards: FC<{ items: TMenu[] }> = ({ items: initialItems }) => {
     })
   );
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
 
-    if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((item) => item._id === active.id);
-        const newIndex = items.findIndex((item) => item._id === over!.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  }, []);
+      if (active.id !== over?.id) {
+        const oldIndex = menuItems.findIndex((item) => item._id === active.id);
+        const newIndex = menuItems.findIndex((item) => item._id === over!.id);
+        const newOrderArray = arrayMove(menuItems, oldIndex, newIndex);
 
-  useEffect(() => {
-    setItems(initialItems);
-  }, [initialItems]);
+        reorderMenu(newOrderArray.map((item) => item._id));
+      }
+    },
+    [menuItems, reorderMenu]
+  );
+
+  if (isPending) {
+    return <PageLoader />;
+  }
 
   return (
     <DndContext
@@ -56,11 +78,11 @@ const MenuCards: FC<{ items: TMenu[] }> = ({ items: initialItems }) => {
       onDragEnd={handleDragEnd}
     >
       <SortableContext
-        items={items.map((item) => item._id)}
+        items={menuItems.map((item) => item._id)}
         strategy={rectSortingStrategy} // Rectangular sorting strategy
       >
         <div className="flex flex-wrap gap-2">
-          {items.map((item) => (
+          {menuItems.map((item) => (
             <SortableMenuItem key={item._id} id={item._id} item={item} />
           ))}
         </div>

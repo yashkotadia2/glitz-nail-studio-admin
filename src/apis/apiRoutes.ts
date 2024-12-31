@@ -4,5 +4,6 @@ export const API_ROUTES = {
     ADD: "/menu/add",
     EDIT: "/menu/edit",
     DELETE: "/menu/delete",
+    REORDER: "/menu/reorder",
   },
 };

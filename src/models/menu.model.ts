@@ -16,6 +16,11 @@ const MenuSchema: Schema = new mongoose.Schema({
   menuDescription: {
     type: String,
   },
+  order: {
+    type: Number,
+    required: true,
+    default: 0, // Default value for the order field
+  },
   createdAt: {
     type: Date,
     default: Date.now,

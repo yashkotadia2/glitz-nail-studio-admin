@@ -6,7 +6,8 @@ export async function GET() {
   await dbConnect();
 
   try {
-    const menuItems = await Menu.find({});
+    // Fetch all menu items and sort them by the `order` field
+    const menuItems = await Menu.find({}).sort({ order: 1 });
     return NextResponse.json(menuItems);
   } catch (error: unknown) {
     return NextResponse.json({
