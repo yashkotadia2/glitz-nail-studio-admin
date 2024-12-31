@@ -54,16 +54,14 @@ const MenuCard = ({ item }: { item: TMenu }) => {
     <>
       <div
         title="Drag to reorder"
-        className="w-[300px] p-5 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+        className="w-[300px] p-5 bg-white border border-gray-200 rounded-lg shadow"
       >
-        <div className="line-clamp-1 mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+        <div className="line-clamp-1 mb-2 text-xl font-bold tracking-tight text-gray-900">
           {item.menuName}
         </div>
-        <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-          {item.menuDescription}
-        </p>
+        <p className="mb-3 font-normal text-gray-700">{item.menuDescription}</p>
         <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
+          <span className="text-xl font-bold text-gray-900">
             ₹{item.menuPrice}
           </span>
           <div className="flex items-center gap-2">
