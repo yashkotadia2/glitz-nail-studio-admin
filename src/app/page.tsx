@@ -1,5 +1,6 @@
 "use client";
 import React, { JSX, useEffect, useState } from "react";
+import useSelectedKey from "@/zustand/useSelectedKey";
 import { Button, Layout, Menu } from "antd";
 import {
   TbCalendar,
@@ -61,7 +62,7 @@ const items = [
 
 const Home: React.FC = () => {
   const deviceType = useScreenWidth();
-  const [selectedKey, setSelectedKey] = useState("appointments");
+  const { selectedKey, setSelectedKey } = useSelectedKey();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
