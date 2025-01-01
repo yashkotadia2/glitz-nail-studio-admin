@@ -16,3 +16,11 @@
 .ant-popover {
   max-width: 320px;
 }
+
+.menu-card-wrapper {
+  -webkit-touch-callout: none; /* Disable the callout when long pressed on iOS */
+  -webkit-user-select: none; /* Disable text selection on mobile Safari and Chrome */
+  -moz-user-select: none; /* Older Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Modern browsers */
+}
