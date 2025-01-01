@@ -54,7 +54,7 @@ const MenuCard = ({ item }: { item: TMenu }) => {
     <>
       <div
         title="Drag to reorder"
-        className="w-full p-5 bg-white border border-gray-200 rounded-lg shadow menu-card-wrapper"
+        className="w-full p-5 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg menu-card-wrapper transition"
       >
         <div className="line-clamp-1 mb-2 text-xl font-bold tracking-tight text-gray-900">
           {item.menuName}
