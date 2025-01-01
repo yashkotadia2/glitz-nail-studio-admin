@@ -59,8 +59,6 @@ const PriceMenu = () => {
     }
   }, [error]);
 
-  console.log("GroupedData:", groupByCategory(menuItems as TMenu[]));
-
   if (isMenuLoading) {
     return <PageLoader />;
   }

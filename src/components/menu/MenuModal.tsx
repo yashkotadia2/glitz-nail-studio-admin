@@ -24,7 +24,6 @@ const MenuModal = ({
   const [form] = Form.useForm(); // Correctly using Form.useForm()
 
   const handleSubmit = (values: TMenuWithoutId) => {
-    console.log("Form values:", values);
     onSubmit(values);
   };
 
