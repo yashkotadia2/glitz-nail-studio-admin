@@ -6,4 +6,10 @@ export const API_ROUTES = {
     DELETE: "/menu/delete",
     REORDER: "/menu/reorder",
   },
+
+  FLYER: {
+    GET_ALL: "/flyer",
+    UPLOAD: "/flyer/upload",
+    DELETE: "/flyer/delete",
+  },
 };

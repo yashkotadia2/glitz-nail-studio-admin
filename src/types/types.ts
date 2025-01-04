@@ -1,3 +1,4 @@
+// APPOINTMENT TYPES
 export type TAppointment = {
   id: string;
   name: string;
@@ -8,6 +9,7 @@ export type TAppointment = {
   message?: string;
 };
 
+// MENU TYPES
 export type TMenuCategory = {
   id: string;
   label:
@@ -32,4 +34,13 @@ export type TMenuWithoutId = Omit<TMenu, "id">;
 export type GroupedCategory = {
   category: string;
   menuItems: TMenu[];
+};
+
+// FLYER TYPES
+export type TFlyer = {
+  _id: string;
+  fileName: string;
+  fileUrl: string;
+  fileKey: string;
+  uploadDate: string;
 };

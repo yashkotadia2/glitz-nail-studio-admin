@@ -4,7 +4,7 @@ import { TbPlus } from "react-icons/tb";
 
 type HeaderProps = {
   title: string;
-  buttonText: string;
+  buttonText?: string;
   onClick?: () => void;
 };
 
@@ -13,14 +13,16 @@ const Header = ({ title, buttonText = "Button", onClick }: HeaderProps) => {
     <>
       <div className="flex justify-between items-center">
         <div className="text-2xl font-semibold">{title}</div>
-        <Button
-          type="primary"
-          className="mr-2"
-          onClick={onClick}
-          icon={<TbPlus className="text-lg" />}
-        >
-          {buttonText}
-        </Button>
+        {buttonText === "" ? null : (
+          <Button
+            type="primary"
+            className="mr-2"
+            onClick={onClick}
+            icon={<TbPlus className="text-lg" />}
+          >
+            {buttonText}
+          </Button>
+        )}
       </div>
       <Divider className="my-2 border border-gray-200" />
     </>

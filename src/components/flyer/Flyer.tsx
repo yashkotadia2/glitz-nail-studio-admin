@@ -1,7 +1,22 @@
 import React from "react";
+import Header from "../global/Header";
+import FlyerForm from "./FlyerForm";
+import FlyerCards from "./FlyerCards";
 
 const Flyer = () => {
-  return <div>Flyer</div>;
+  return (
+    <div>
+      <Header
+        title="Flyer"
+        buttonText={""}
+        onClick={() => {
+          console.log("Flyer clicked");
+        }}
+      />
+      <FlyerForm />
+      <FlyerCards />
+    </div>
+  );
 };
 
 export default Flyer;

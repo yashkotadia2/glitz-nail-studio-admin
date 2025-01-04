@@ -1,5 +1,5 @@
 "use client";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import axios, { AxiosResponse } from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -7,13 +7,19 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 type Params = Record<string, string>;
 
 const useAxiosAPI = () => {
-  const COMMON_HEADERS = {
-    "Content-Type": "application/json",
-  };
+  const COMMON_HEADERS = useMemo(
+    () => ({
+      "Content-Type": "application/json",
+    }),
+    []
+  );
 
-  const FORM_DATA_HEADERS = {
-    "Content-Type": "multipart/form-data",
-  };
+  const FORM_DATA_HEADERS = useMemo(
+    () => ({
+      "Content-Type": "multipart/form-data",
+    }),
+    []
+  );
 
   const getData = useCallback(
     async <T = unknown,>(
@@ -54,7 +60,7 @@ const useAxiosAPI = () => {
         throw error;
       }
     },
-    []
+    [COMMON_HEADERS]
   );
 
   const postData = useCallback(
@@ -78,7 +84,7 @@ const useAxiosAPI = () => {
         throw error;
       }
     },
-    []
+    [COMMON_HEADERS, FORM_DATA_HEADERS]
   );
 
   const putData = useCallback(
@@ -87,6 +93,8 @@ const useAxiosAPI = () => {
       ids: string | number | Array<string | number> | null = null,
       data: Record<string, unknown> | FormData = {}
     ): Promise<T> => {
+      const isFormData: boolean = data instanceof FormData;
+
       try {
         // Determine if `ids` is an array or a single value and append appropriately
         const idsPath = Array.isArray(ids) ? ids.join("/") : ids ? ids : "";
@@ -97,7 +105,7 @@ const useAxiosAPI = () => {
           : `${BASE_URL}${url}`;
 
         const response: AxiosResponse<T> = await axios.put(finalUrl, data, {
-          headers: COMMON_HEADERS,
+          headers: isFormData ? FORM_DATA_HEADERS : COMMON_HEADERS,
         });
 
         return response.data;
@@ -106,7 +114,7 @@ const useAxiosAPI = () => {
         throw error;
       }
     },
-    []
+    [COMMON_HEADERS, FORM_DATA_HEADERS]
   );
 
   const deleteData = useCallback(
@@ -122,7 +130,7 @@ const useAxiosAPI = () => {
         throw error;
       }
     },
-    []
+    [COMMON_HEADERS]
   );
 
   return { getData, postData, putData, deleteData };
