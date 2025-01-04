@@ -66,7 +66,7 @@ const FlyerForm = () => {
 
   if (isPending) {
     return (
-      <div className="w-full h-[calc(100vh-75px)]">
+      <div className="w-full h-[calc(100dvh-75px)]">
         <PageLoader />
       </div>
     );
@@ -75,7 +75,12 @@ const FlyerForm = () => {
   return (
     <>
       {/* Ant Design Form */}
-      <Form name="flyerForm" onFinish={onFinish} layout="vertical">
+      <Form
+        name="flyerForm"
+        onFinish={onFinish}
+        layout="vertical"
+        className="relative"
+      >
         <Form.Item
           name="upload"
           label="Upload Files"
@@ -90,17 +95,13 @@ const FlyerForm = () => {
               <InboxOutlined />
             </p>
             <p className="ant-upload-text">
-              Click or drag file to this area to upload
-            </p>
-            <p className="ant-upload-hint">
-              Support for a single or bulk upload. Strictly prohibited from
-              uploading company data or other banned files.
+              Click or drag image to this area to upload
             </p>
           </Dragger>
         </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
+        <Form.Item className="absolute -top-1 right-0">
+          <Button size="small" type="primary" htmlType="submit">
             Submit
           </Button>
         </Form.Item>

@@ -24,26 +24,28 @@ const FlyerCard = ({ flyer }: { flyer: TFlyer }) => {
 
   if (isPending) {
     return (
-      <div className="w-full h-60">
+      <div className="w-full h-64">
         <PageLoader />
       </div>
     );
   }
 
   return (
-    <div className="p-2 bg-theme-primary/10 rounded">
+    <div className="p-3 bg-theme-primary/10 rounded-lg h-fit">
       <Image
         height={200}
         src={flyer.fileUrl}
         alt={flyer.fileName}
-        className="object-cover bg-center"
+        className="object-cover bg-center rounded-md"
       />
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-lg font-semibold">{flyer.fileName}</p>
-          <p className="text-sm">
-            {dayjs(flyer.uploadDate).format("DD MMM YYYY HH:mm a")}
-          </p>
+          <div className="text-md font-semibold leading-4 line-clamp-2">
+            {flyer.fileName}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            {dayjs(flyer.uploadDate).format("DD MMM YYYY hh:mm a")}
+          </div>
         </div>
         <div>
           <button className="btn btn-danger">
@@ -56,7 +58,7 @@ const FlyerCard = ({ flyer }: { flyer: TFlyer }) => {
               cancelText="Cancel"
               okButtonProps={{ danger: true }}
             >
-              <DeleteOutlined className="text-red-500 text-xl" />
+              <DeleteOutlined className="text-red-500 text-xl px-2" />
             </Popconfirm>
           </button>
         </div>

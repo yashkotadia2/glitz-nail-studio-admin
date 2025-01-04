@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -72,6 +72,10 @@ const MenuCards: FC<{ items: TMenu[] }> = ({ items: menuItems }) => {
     },
     [reorderMenu]
   );
+
+  useEffect(() => {
+    setItemsState(menuItems);
+  }, [menuItems]);
 
   return (
     <DndContext

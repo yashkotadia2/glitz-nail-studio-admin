@@ -15,7 +15,6 @@ const MenuCard = ({ item }: { item: TMenu }) => {
   const { deleteData, putData } = useAxiosAPI();
 
   const { mutate: deleteMenu, isPending } = useMutation({
-    mutationKey: ["deleteMenu", item._id],
     mutationFn: (id: string) => deleteData(API_ROUTES.MENU.DELETE, id),
     onSuccess: () => {
       refetchMenu();
@@ -26,7 +25,6 @@ const MenuCard = ({ item }: { item: TMenu }) => {
   });
 
   const { mutate: editMenuItem, isPending: isEditing } = useMutation({
-    mutationKey: ["addMenu"],
     mutationFn: (data: TMenuWithoutId) =>
       putData(API_ROUTES.MENU.EDIT, item?._id, data),
     onSuccess: () => {
