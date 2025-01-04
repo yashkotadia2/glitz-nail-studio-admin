@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { InboxOutlined } from "@ant-design/icons";
-import { Upload, Form, Button } from "antd";
+import { Upload, Form, Button, message } from "antd";
 import type { UploadFile, UploadProps } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import useAxiosAPI from "@/apis/useAxios";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import PageLoader from "../loaders/PageLoader";
 import { useQueryClient } from "@tanstack/react-query";
+import imageCompression from "browser-image-compression";
 
 type UploadChangeParam = {
   file: UploadFile;
@@ -14,7 +15,6 @@ type UploadChangeParam = {
   event?: ProgressEvent;
 };
 
-// Helper function to normalize the file upload value from event
 const normFile = (e: UploadChangeParam) => {
   if (Array.isArray(e)) {
     return e;
@@ -24,19 +24,8 @@ const normFile = (e: UploadChangeParam) => {
 
 const { Dragger } = Upload;
 
-const uploadProps: UploadProps = {
-  name: "file",
-  listType: "picture",
-  multiple: false,
-  maxCount: 1,
-  accept: ".jpg,.jpeg,.png", //images only
-  onChange(info) {
-    const { file } = info;
-    file.status = "done"; // Set the status to done to simulate successful upload
-  },
-};
-
 const FlyerForm = () => {
+  const [isCompressing, setIsCompressing] = useState(false);
   const queryClient = useQueryClient();
   const { putData } = useAxiosAPI();
 
@@ -58,6 +47,42 @@ const FlyerForm = () => {
       alert("File upload failed!");
     },
   });
+
+  const handleBeforeUpload = async (file: File) => {
+    // Compression options
+    const options = {
+      maxSizeMB: 1, // Max file size (1 MB)
+      maxWidthOrHeight: 1920, // Max width/height
+      useWebWorker: true,
+    };
+
+    try {
+      setIsCompressing(true);
+      // Compress the image
+      const compressedFile = await imageCompression(file, options);
+
+      // Return the compressed file as a File object
+      return new File([compressedFile], file.name, { type: file.type });
+    } catch {
+      message.error("Image compression failed!");
+      return Upload.LIST_IGNORE;
+    } finally {
+      setIsCompressing(false);
+    }
+  };
+
+  const uploadProps: UploadProps = {
+    name: "file",
+    listType: "picture",
+    multiple: false,
+    maxCount: 1,
+    accept: ".jpg,.jpeg,.png", //images only
+    beforeUpload: handleBeforeUpload, // Compress before uploading
+    onChange(info) {
+      const { file } = info;
+      file.status = "done"; // Simulate successful upload for Ant Design UI
+    },
+  };
 
   const onFinish = (values: { upload: UploadFile[] }) => {
     console.log("Form submitted with values:", values);
@@ -101,7 +126,12 @@ const FlyerForm = () => {
         </Form.Item>
 
         <Form.Item className="absolute -top-1 right-0">
-          <Button size="small" type="primary" htmlType="submit">
+          <Button
+            loading={isCompressing}
+            size="small"
+            type="primary"
+            htmlType="submit"
+          >
             Submit
           </Button>
         </Form.Item>

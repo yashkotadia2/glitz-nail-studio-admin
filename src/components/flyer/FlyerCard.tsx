@@ -32,16 +32,21 @@ const FlyerCard = ({ flyer }: { flyer: TFlyer }) => {
 
   return (
     <div className="p-3 bg-theme-primary/10 rounded-lg h-fit">
-      <div className="w-full h-48 mb-2 overflow-hidden rounded-md">
+      <div className="w-full h-48 mb-2 overflow-hidden rounded-md flex justify-center items-center">
         <Image
+          width={"100%"}
+          height={"100%"}
           src={flyer.fileUrl}
           alt={flyer.fileName}
-          className="h-full object-cover bg-center"
+          className="object-cover bg-center"
         />
       </div>
       <div className="flex justify-between items-center">
         <div>
-          <div className="text-md font-semibold leading-5 line-clamp-2">
+          <div
+            title={flyer.fileName}
+            className="text-md font-semibold leading-5 line-clamp-1"
+          >
             {flyer.fileName}
           </div>
           <div className="text-sm text-gray-500 mt-1">
