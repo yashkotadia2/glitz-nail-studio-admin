@@ -8,7 +8,7 @@ const Flyer = () => {
     <div>
       <Header
         title="Flyer"
-        buttonText={""}
+        buttonText={null}
         onClick={() => {
           console.log("Flyer clicked");
         }}

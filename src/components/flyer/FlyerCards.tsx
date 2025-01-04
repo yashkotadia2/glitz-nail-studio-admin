@@ -39,7 +39,7 @@ const FlyerCards = () => {
           className="h-[calc(100dvh-320px)] flex flex-col justify-center"
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 h-[calc(100dvh-370px)] overflow-y-auto">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 h-[calc(100dvh-310px)] overflow-y-auto">
           {(flyerImages as TFlyer[])?.map((flyer: TFlyer) => (
             <FlyerCard key={flyer._id} flyer={flyer} />
           ))}
