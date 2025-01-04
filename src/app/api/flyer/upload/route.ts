@@ -7,8 +7,6 @@ import dbConnect from "@/lib/dbConnect";
 // Initialize UTApi with your Uploadthing API token
 const utapi = new UTApi({ token: process.env.UPLOADTHING_TOKEN });
 
-console.log("UPLOADTHING_TOKEN:", process.env.UPLOADTHING_TOKEN);
-
 export async function PUT(req: NextRequest) {
   try {
     await dbConnect(); // Connect to the database
