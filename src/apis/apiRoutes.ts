@@ -12,4 +12,11 @@ export const API_ROUTES = {
     UPLOAD: "/flyer/upload",
     DELETE: "/flyer/delete",
   },
+
+  APPOINTMENT: {
+    GET_ALL: "/appointment",
+    ADD: "/appointment/add",
+    EDIT: "/appointment/edit",
+    DELETE: "/appointment/delete",
+  },
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX, useEffect } from "react";
 import {
   Form,
   Input,
@@ -9,59 +9,79 @@ import {
   Modal,
 } from "antd";
 import dayjs from "dayjs";
-import { TAppointment } from "@/types/types";
+import { TAppointment, TMenu } from "@/types/types";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosAPI from "@/apis/useAxios";
+import { API_ROUTES } from "@/apis/apiRoutes";
+import toReadableString from "@/lib/toReadableString";
+import RUPEE_SYMBOL from "@/lib/rupeeSymbol";
 
 const { TextArea } = Input;
-const { Option } = Select;
-
-const serviceOptions = [
-  { label: "Nail Art", value: "nailArt" },
-  { label: "Gel Polish", value: "gelPolish" },
-  { label: "Extensions", value: "extensions" },
-  { label: "Refill", value: "refill" },
-  { label: "Removal", value: "removal" },
-];
 
 type AppointmentModalProps = {
+  loading: boolean;
   open: boolean;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSubmit: (data: TAppointment) => void;
   initialValues?: TAppointment;
 };
 
 const AppointmentModal = ({
+  loading,
   open,
   onCancel,
   onSubmit,
+  initialValues,
 }: AppointmentModalProps) => {
   const [form] = Form.useForm();
 
+  const { getData } = useAxiosAPI();
+  const { data: menuItems, isPending: isMenuLoading } = useQuery({
+    queryKey: ["menu"],
+    queryFn: () => getData(API_ROUTES.MENU.GET_ALL),
+  });
+
   const handleSubmit = (values: TAppointment) => {
-    console.log("Form values:", values);
+    onSubmit(values);
   };
+
+  useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue({
+        ...initialValues,
+        date: dayjs(initialValues.date),
+        time: dayjs(initialValues.time),
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [initialValues, form]);
+
   return (
-    <div>
-      <Modal
-        centered
-        title="Appointment"
-        open={open}
-        onCancel={onCancel}
-        onOk={onSubmit}
+    <Modal
+      centered
+      title={initialValues ? "Edit Appointment" : "Add Appointment"}
+      open={open}
+      onCancel={onCancel}
+      onOk={() => form.submit()}
+      confirmLoading={loading}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        initialValues={{
+          date: dayjs(),
+          time: dayjs(),
+        }}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={{
-            date: dayjs(),
-            time: dayjs(),
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name Field */}
           <Form.Item
             name="name"
             label="Name"
             rules={[{ required: true, message: "Please enter your name" }]}
+            className="mb-0"
           >
             <Input placeholder="Enter your name" />
           </Form.Item>
@@ -70,22 +90,32 @@ const AppointmentModal = ({
           <Form.Item
             name="number"
             label="Number"
+            validateDebounce={1000}
             rules={[
               { required: true, message: "Please enter your phone number" },
-              { type: "number", message: "Please enter a valid number" },
+              {
+                pattern: /^[0-9]{10}$/,
+                message: "Please enter 10-digit phone number",
+              },
             ]}
           >
             <InputNumber
+              controls={false}
+              prefix="+91"
               className="w-full"
               placeholder="Enter your phone number"
+              style={{ width: "100%" }} // Ensure full width of the input field
             />
           </Form.Item>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Date Field */}
           <Form.Item
             name="date"
             label="Date"
             rules={[{ required: true, message: "Please select a date" }]}
+            className="mb-0"
           >
             <DatePicker className="w-full" />
           </Form.Item>
@@ -98,38 +128,98 @@ const AppointmentModal = ({
           >
             <TimePicker format={"h:mm a"} className="w-full" />
           </Form.Item>
+        </div>
 
-          {/* Service Wanted (Multi-Select) */}
-          <Form.Item
-            name="service"
-            label="Service Wanted"
-            rules={[
-              { required: true, message: "Please select at least one service" },
-            ]}
-          >
-            <Select mode="multiple" placeholder="Select services">
-              {serviceOptions.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+        {/* Service Wanted (Multi-Select) */}
+        <Form.Item
+          name="services"
+          label="Service Wanted"
+          rules={[
+            { required: true, message: "Please select at least one service" },
+          ]}
+        >
+          <Select
+            showSearch={true}
+            loading={isMenuLoading}
+            mode="multiple"
+            placeholder="Select services"
+            options={formatMenuItems(menuItems as TMenu[])}
+            filterOption={(input, option) => {
+              const groupLabel =
+                typeof option?.label === "string" ? option.label : "";
+              const optionLabel =
+                typeof option?.label === "string"
+                  ? option.label
+                  : option?.label?.props?.children || "";
 
-          {/* Additional Message */}
-          <Form.Item
-            name="message"
-            label="Any Other Message"
-            rules={[
-              { max: 500, message: "Message cannot exceed 500 characters" },
-            ]}
-          >
-            <TextArea placeholder="Enter any additional message" rows={4} />
-          </Form.Item>
-        </Form>{" "}
-      </Modal>
-    </div>
+              return (
+                groupLabel.toLowerCase().includes(input.toLowerCase()) ||
+                optionLabel.toLowerCase().includes(input.toLowerCase())
+              );
+            }}
+          />
+        </Form.Item>
+
+        {/* Additional Message */}
+        <Form.Item
+          name="message"
+          label="Any Other Message"
+          rules={[
+            { max: 500, message: "Message cannot exceed 500 characters" },
+          ]}
+        >
+          <TextArea placeholder="Enter any additional message" rows={4} />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 
 export default AppointmentModal;
+
+function formatMenuItems(menuItems: TMenu[] | undefined | null) {
+  // Ensure menuItems is a valid array before proceeding
+  if (!menuItems || !Array.isArray(menuItems) || menuItems.length === 0) {
+    return []; // Return an empty array if input is invalid
+  }
+
+  return Object.values(
+    menuItems.reduce(
+      (
+        acc: Record<
+          string,
+          {
+            label: JSX.Element;
+            title: string;
+            options: { label: JSX.Element; value: string }[];
+          }
+        >,
+        item
+      ) => {
+        if (!acc[item.menuCategory]) {
+          acc[item.menuCategory] = {
+            label: <span>{toReadableString(item.menuCategory)}</span>,
+            title: item.menuCategory,
+            options: [],
+          };
+        }
+
+        acc[item.menuCategory].options.push({
+          label: (
+            <div className="flex items-center justify-between me-2">
+              <div>{item.menuName}</div>
+              <div className="text-sm text-gray-400">
+                {RUPEE_SYMBOL}
+                {item.menuPrice}
+              </div>
+            </div>
+          ),
+          value: item._id,
+        });
+
+        return acc;
+      },
+      {}
+    )
+  );
+}

@@ -7,6 +7,7 @@ import React from "react";
 import { TbPencil, TbTrash } from "react-icons/tb";
 import PageLoader from "../loaders/PageLoader";
 import MenuModal from "./MenuModal";
+import RUPEE_SYMBOL from "@/lib/rupeeSymbol";
 
 const MenuCard = ({ item }: { item: TMenu }) => {
   const [isMenuModalOpen, setIsMenuModalOpen] = React.useState(false);
@@ -60,7 +61,8 @@ const MenuCard = ({ item }: { item: TMenu }) => {
         <p className="mb-3 font-normal text-gray-700">{item.menuDescription}</p>
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-gray-900">
-            ₹{item.menuPrice}
+            {RUPEE_SYMBOL}
+            {item.menuPrice}
           </span>
           <div className="flex items-center gap-2">
             <Button

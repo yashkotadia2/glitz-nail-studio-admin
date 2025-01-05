@@ -1,11 +1,11 @@
 // APPOINTMENT TYPES
 export type TAppointment = {
-  id: string;
+  _id: string;
   name: string;
   phone: number;
   date: string;
   time: string;
-  services: TMenu[];
+  services: string[];
   message?: string;
 };
 

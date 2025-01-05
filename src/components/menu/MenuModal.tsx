@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Form, Input, InputNumber, Select, Modal } from "antd";
 import { TMenuWithoutId } from "@/types/types";
 import menuCategories from "@/data/menuCategories";
+import RUPEE_SYMBOL from "@/lib/rupeeSymbol";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -64,7 +65,7 @@ const MenuModal = ({
         {/* Price */}
         <Form.Item
           name="menuPrice"
-          label="Price (₹)"
+          label={`Price (${RUPEE_SYMBOL})`}
           rules={[
             { required: true, message: "Please enter your price" },
             { type: "number", message: "Please enter a valid price" },
