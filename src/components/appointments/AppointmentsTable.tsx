@@ -14,23 +14,24 @@ const AppointmentsTable = () => {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [editData, setEditData] = useState<TAppointment | undefined>();
   const { getData, putData, deleteData } = useAxiosAPI();
-  const [tableHeight, setTableHeight] = useState<number>(
-    window.innerHeight - 120
-  ); // Initial height
+  const [tableHeight, setTableHeight] = useState<number>(0); // Initial height
 
   // Update table height based on window resize
   const updateTableHeight = () => {
-    setTableHeight(window.innerHeight - 120); // Calculate height as 100dvh - 150px
+    if (typeof window !== "undefined") {
+      setTableHeight(window.innerHeight - 120); // Calculate height as 100dvh - 120px
+    }
   };
 
-  // Set up resize event listener
   useEffect(() => {
-    updateTableHeight(); // Set initial height
-    window.addEventListener("resize", updateTableHeight); // Update height on window resize
+    if (typeof window !== "undefined") {
+      updateTableHeight(); // Set initial height
+      window.addEventListener("resize", updateTableHeight); // Update height on window resize
 
-    return () => {
-      window.removeEventListener("resize", updateTableHeight); // Clean up the event listener
-    };
+      return () => {
+        window.removeEventListener("resize", updateTableHeight); // Clean up the event listener
+      };
+    }
   }, []);
 
   // Fetch menu items using useQuery
