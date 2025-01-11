@@ -21,6 +21,15 @@
   border-radius: 20px;
 }
 
+.ant-tooltip-inner{
+  min-width: fit-content !important;
+  border-radius: 15px !important;
+}
+
+.ant-table-filter-dropdown{
+  border-radius: 15px !important;
+}
+
 .menu-card-wrapper {
   -webkit-touch-callout: none; /* Disable the callout when long pressed on iOS */
   -webkit-user-select: none; /* Disable text selection on mobile Safari and Chrome */

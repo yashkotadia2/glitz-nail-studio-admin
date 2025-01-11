@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Button, Popconfirm } from "antd";
+import { Table, Button, Popconfirm, Tooltip } from "antd";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import useAxiosAPI from "@/apis/useAxios";
@@ -211,7 +211,7 @@ const AppointmentsTable = () => {
         return services.map((service, index) => (
           <div key={index} className="flex items-center justify-between -mb-1">
             <div>{`${index + 1}. ${service.name}`}</div>
-            <div className="ms-1 me-3">{`₹${service.price}`}</div>
+            <div className="ms-2 me-3">{`₹${service.price}`}</div>
           </div>
         ));
       },
@@ -229,8 +229,12 @@ const AppointmentsTable = () => {
       title: "Message",
       dataIndex: "message",
       key: "message",
-      minWidth: 120,
-      render: (message: string) => message || "-",
+      width: 200,
+      render: (message: string) => (
+        <Tooltip trigger={["click"]} title={message}>
+          <div className="line-clamp-1">{message || "-"}</div>
+        </Tooltip>
+      ),
     },
     {
       title: "Actions",

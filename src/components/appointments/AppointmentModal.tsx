@@ -35,6 +35,7 @@ const AppointmentModal = ({
 }: AppointmentModalProps) => {
   const [form] = Form.useForm();
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
+  const [selectedTime, setSelectedTime] = useState<Dayjs | null>(dayjs());
 
   const { getData } = useAxiosAPI();
   const { data: menuItems, isPending: isMenuLoading } = useQuery({
@@ -88,6 +89,10 @@ const AppointmentModal = ({
   // Handle date change
   const handleDateChange = (date: Dayjs | null) => {
     setSelectedDate(date);
+  };
+
+  const handleTimeChange = (time: Dayjs | null) => {
+    setSelectedTime(time);
   };
 
   return (
@@ -154,7 +159,9 @@ const AppointmentModal = ({
               className="w-full"
               disabledDate={disabledDate} // Disable past dates
               onChange={handleDateChange} // Update selected date
-              readOnly={true} // Disable manual input
+              allowClear={Boolean(selectedDate)}
+              inputReadOnly={Boolean(selectedDate)}
+              open={selectedDate ? false : undefined}
             />
           </Form.Item>
 
@@ -167,8 +174,11 @@ const AppointmentModal = ({
             <TimePicker
               format={"h:mm a"}
               className="w-full"
+              onChange={handleTimeChange} // Update selected time
               disabledTime={getDisabledTime} // Disable times based on selected date
-              readOnly={true} // Disable manual input
+              allowClear={Boolean(selectedTime)}
+              inputReadOnly={Boolean(selectedTime)}
+              open={selectedTime ? false : undefined}
             />
           </Form.Item>
         </div>
