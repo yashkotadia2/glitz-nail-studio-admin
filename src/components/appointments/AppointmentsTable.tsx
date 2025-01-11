@@ -8,13 +8,29 @@ import { TAppointment, TMenu } from "@/types/types"; // Adjust according to your
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AppointmentModal from "./AppointmentModal";
 import dayjs from "dayjs";
-import { ColumnType } from "antd/es/table";
+import {
+  ColumnType,
+  TablePaginationConfig,
+  FilterValue,
+  SorterResult,
+  TableCurrentDataSource,
+} from "antd/es/table/interface";
+
+// Define DataType as TAppointment
+type DataType = TAppointment;
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+
+dayjs.extend(isSameOrAfter);
 
 const AppointmentsTable = () => {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [editData, setEditData] = useState<TAppointment | undefined>();
   const { getData, putData, deleteData } = useAxiosAPI();
   const [tableHeight, setTableHeight] = useState<number>(0); // Initial height
+  // Default filter applied (show today and future dates)
+  const [filteredInfo, setFilteredInfo] = useState({
+    date: ["todayOrLater"],
+  });
 
   // Update table height based on window resize
   const updateTableHeight = () => {
@@ -154,11 +170,27 @@ const AppointmentsTable = () => {
       key: "number",
       minWidth: 110,
     },
+
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
       render: (date: string) => dayjs(date).format("DD MMM YYYY"),
+      sorter: (a, b) => dayjs(a.date).unix() - dayjs(b.date).unix(),
+      defaultSortOrder: "ascend", // Sort in ascending order by default
+      filters: [
+        {
+          text: "From Today",
+          value: "todayOrLater",
+        },
+      ],
+      filteredValue: filteredInfo.date || null,
+      onFilter: (value, record) => {
+        if (value === "todayOrLater") {
+          return dayjs(record.date).isSameOrAfter(dayjs(), "day");
+        }
+        return true; // For "allDates", show all records
+      },
     },
     {
       title: "Time",
@@ -179,7 +211,7 @@ const AppointmentsTable = () => {
         return services.map((service, index) => (
           <div key={index} className="flex items-center justify-between -mb-1">
             <div>{`${index + 1}. ${service.name}`}</div>
-            <div className="me-3">{`₹${service.price}`}</div>
+            <div className="ms-1 me-3">{`₹${service.price}`}</div>
           </div>
         ));
       },
@@ -226,12 +258,29 @@ const AppointmentsTable = () => {
     },
   ];
 
+  // Handle table change event (sorting, filtering, pagination)
+  const handleChange = (
+    pagination: TablePaginationConfig,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<DataType> | SorterResult<DataType>[],
+    extra: TableCurrentDataSource<DataType>
+  ) => {
+    if (false) {
+      console.log("Table change", pagination, filters, sorter, extra);
+    }
+
+    setFilteredInfo({
+      date: (filters.date as string[]) || null,
+    });
+  };
+
   return (
     <>
       <Table
         size="small"
         loading={isLoading || menuLoading || isDeletingAppointment}
         columns={columns}
+        onChange={handleChange}
         tableLayout="auto"
         dataSource={appointments as TAppointment[]}
         pagination={false}

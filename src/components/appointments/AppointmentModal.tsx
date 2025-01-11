@@ -1,4 +1,4 @@
-import React, { JSX, useEffect } from "react";
+import React, { JSX, useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -8,7 +8,7 @@ import {
   Select,
   Modal,
 } from "antd";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { TAppointment, TMenu } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosAPI from "@/apis/useAxios";
@@ -34,6 +34,7 @@ const AppointmentModal = ({
   initialValues,
 }: AppointmentModalProps) => {
   const [form] = Form.useForm();
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
 
   const { getData } = useAxiosAPI();
   const { data: menuItems, isPending: isMenuLoading } = useQuery({
@@ -56,6 +57,38 @@ const AppointmentModal = ({
       form.resetFields();
     }
   }, [initialValues, form]);
+
+  // Disable dates before today
+  const disabledDate = (current: Dayjs) => {
+    return current && current < dayjs().startOf("day");
+  };
+
+  // Disable times before the current time if today is selected
+  const getDisabledTime = () => {
+    if (selectedDate && dayjs(selectedDate).isSame(dayjs(), "day")) {
+      const currentHour = dayjs().hour();
+      const currentMinute = dayjs().minute();
+
+      return {
+        disabledHours: () =>
+          [...Array(24).keys()].filter((hour) => hour < currentHour),
+        disabledMinutes: (selectedHour: number) => {
+          if (selectedHour === currentHour) {
+            return [...Array(60).keys()].filter(
+              (minute) => minute < currentMinute
+            );
+          }
+          return [];
+        },
+      };
+    }
+    return {}; // No disabled times if a different date is selected
+  };
+
+  // Handle date change
+  const handleDateChange = (date: Dayjs | null) => {
+    setSelectedDate(date);
+  };
 
   return (
     <Modal
@@ -117,7 +150,12 @@ const AppointmentModal = ({
             rules={[{ required: true, message: "Please select a date" }]}
             className="mb-0"
           >
-            <DatePicker className="w-full" />
+            <DatePicker
+              className="w-full"
+              disabledDate={disabledDate} // Disable past dates
+              onChange={handleDateChange} // Update selected date
+              readOnly={true} // Disable manual input
+            />
           </Form.Item>
 
           {/* Time Field */}
@@ -126,7 +164,12 @@ const AppointmentModal = ({
             label="Time"
             rules={[{ required: true, message: "Please select a time" }]}
           >
-            <TimePicker format={"h:mm a"} className="w-full" />
+            <TimePicker
+              format={"h:mm a"}
+              className="w-full"
+              disabledTime={getDisabledTime} // Disable times based on selected date
+              readOnly={true} // Disable manual input
+            />
           </Form.Item>
         </div>
 

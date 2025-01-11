@@ -17,6 +17,10 @@
   max-width: 320px;
 }
 
+.ant-form-item-control-input-content textarea {
+  border-radius: 20px;
+}
+
 .menu-card-wrapper {
   -webkit-touch-callout: none; /* Disable the callout when long pressed on iOS */
   -webkit-user-select: none; /* Disable text selection on mobile Safari and Chrome */
