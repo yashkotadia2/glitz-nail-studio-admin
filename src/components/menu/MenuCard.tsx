@@ -1,13 +1,14 @@
+import React from "react";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import useAxiosAPI from "@/apis/useAxios";
 import { TMenu, TMenuWithoutId } from "@/types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button, message, Popconfirm } from "antd";
-import React from "react";
+import { Button, Popconfirm } from "antd";
 import { TbPencil, TbTrash } from "react-icons/tb";
 import PageLoader from "../loaders/PageLoader";
 import MenuModal from "./MenuModal";
 import RUPEE_SYMBOL from "@/lib/rupeeSymbol";
+import toast from "react-hot-toast";
 
 const MenuCard = ({ item }: { item: TMenu }) => {
   const [isMenuModalOpen, setIsMenuModalOpen] = React.useState(false);
@@ -15,13 +16,14 @@ const MenuCard = ({ item }: { item: TMenu }) => {
 
   const { deleteData, putData } = useAxiosAPI();
 
-  const { mutate: deleteMenu, isPending } = useMutation({
+  const { mutate: deleteMenu, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) => deleteData(API_ROUTES.MENU.DELETE, id),
     onSuccess: () => {
+      toast.success("Menu item deleted successfully");
       refetchMenu();
     },
     onError: () => {
-      message.error("Error deleting menu item!");
+      toast.error("Error deleting menu item");
     },
   });
 
@@ -29,11 +31,12 @@ const MenuCard = ({ item }: { item: TMenu }) => {
     mutationFn: (data: TMenuWithoutId) =>
       putData(API_ROUTES.MENU.EDIT, item?._id, data),
     onSuccess: () => {
+      toast.success("Menu item edited successfully");
       setIsMenuModalOpen(false);
       refetchMenu();
     },
     onError: () => {
-      message.error("Error adding menu item");
+      toast.error("Error editing menu item");
     },
   });
 
@@ -45,7 +48,7 @@ const MenuCard = ({ item }: { item: TMenu }) => {
     deleteMenu(id);
   };
 
-  if (isPending) {
+  if (isDeleting) {
     return <PageLoader />;
   }
 
@@ -71,23 +74,18 @@ const MenuCard = ({ item }: { item: TMenu }) => {
             />
 
             <Popconfirm
-              title={
-                <div>
-                  Are you sure to delete{" "}
-                  <span className="font-semibold">{item.menuName}</span> from
-                  menu?
-                </div>
-              }
+              title="Are you sure you want to delete this menu item?"
               onConfirm={() => onDelete(item._id)}
-              okText="Delete"
-              cancelText="Cancel"
-              okButtonProps={{ danger: true }}
+              okText="Yes"
+              cancelText="No"
+              placement="left"
             >
               <Button danger icon={<TbTrash />} />
             </Popconfirm>
           </div>
         </div>
       </div>
+
       <MenuModal
         isLoading={isEditing}
         open={isMenuModalOpen}

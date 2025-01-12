@@ -8,6 +8,7 @@ import useAxiosAPI from "@/apis/useAxios";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import PageLoader from "../loaders/PageLoader";
 import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const FlyerCard = ({ flyer }: { flyer: TFlyer }) => {
   const queryClient = useQueryClient();
@@ -19,6 +20,7 @@ const FlyerCard = ({ flyer }: { flyer: TFlyer }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["flyerImages"] });
+      toast.success("Flyer deleted successfully");
     },
   });
 
@@ -63,6 +65,7 @@ const FlyerCard = ({ flyer }: { flyer: TFlyer }) => {
               okText="Delete"
               cancelText="Cancel"
               okButtonProps={{ danger: true }}
+              placement="left"
             >
               <DeleteOutlined className="text-red-500 text-xl px-2" />
             </Popconfirm>

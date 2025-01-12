@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import AppointmentsTable from "./AppointmentsTable";
 import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const buttonText = {
   mobile: "",
@@ -30,9 +31,11 @@ const Appointments = () => {
           queryKey: ["appointments"],
         });
         setIsAppointmentModalOpen(false);
+        toast.success("Appointment added successfully");
       },
       onError: (error) => {
         console.log(error);
+        toast.error("Failed to add appointment");
       },
     });
 

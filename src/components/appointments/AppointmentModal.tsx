@@ -35,7 +35,6 @@ const AppointmentModal = ({
 }: AppointmentModalProps) => {
   const [form] = Form.useForm();
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
-  const [selectedTime, setSelectedTime] = useState<Dayjs | null>(dayjs());
 
   const { getData } = useAxiosAPI();
   const { data: menuItems, isPending: isMenuLoading } = useQuery({
@@ -91,12 +90,9 @@ const AppointmentModal = ({
     setSelectedDate(date);
   };
 
-  const handleTimeChange = (time: Dayjs | null) => {
-    setSelectedTime(time);
-  };
-
   return (
     <Modal
+      forceRender
       centered
       title={initialValues ? "Edit Appointment" : "Add Appointment"}
       open={open}
@@ -159,9 +155,6 @@ const AppointmentModal = ({
               className="w-full"
               disabledDate={disabledDate} // Disable past dates
               onChange={handleDateChange} // Update selected date
-              allowClear={Boolean(selectedDate)}
-              inputReadOnly={Boolean(selectedDate)}
-              open={selectedDate ? false : undefined}
             />
           </Form.Item>
 
@@ -174,11 +167,7 @@ const AppointmentModal = ({
             <TimePicker
               format={"h:mm a"}
               className="w-full"
-              onChange={handleTimeChange} // Update selected time
               disabledTime={getDisabledTime} // Disable times based on selected date
-              allowClear={Boolean(selectedTime)}
-              inputReadOnly={Boolean(selectedTime)}
-              open={selectedTime ? false : undefined}
             />
           </Form.Item>
         </div>
@@ -198,17 +187,25 @@ const AppointmentModal = ({
             placeholder="Select services"
             options={formatMenuItems(menuItems as TMenu[])}
             filterOption={(input, option) => {
-              const groupLabel =
-                typeof option?.label === "string" ? option.label : "";
-              const optionLabel =
-                typeof option?.label === "string"
-                  ? option.label
-                  : option?.label?.props?.children || "";
+              // `filterOption` for Ant Design Select
+              // Convert input and text to lowercase for case-insensitive comparison
+              const inputLower = input.toLowerCase();
 
-              return (
-                groupLabel.toLowerCase().includes(input.toLowerCase()) ||
-                optionLabel.toLowerCase().includes(input.toLowerCase())
-              );
+              // Check if category title matches
+              const categoryTitle = option?.title || "";
+              const isTitleMatch = categoryTitle
+                .toLowerCase()
+                .includes(inputLower);
+
+              // Check if subcategory (menu item) name matches
+              const menuName =
+                option?.label?.props?.children[0]?.props?.children || "";
+              const isSubcategoryMatch = menuName
+                .toLowerCase()
+                .includes(inputLower);
+
+              // Return true if either category title or subcategory name matches the input
+              return isTitleMatch || isSubcategoryMatch;
             }}
           />
         </Form.Item>

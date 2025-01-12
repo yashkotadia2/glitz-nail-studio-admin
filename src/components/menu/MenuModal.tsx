@@ -39,6 +39,7 @@ const MenuModal = ({
 
   return (
     <Modal
+      forceRender
       confirmLoading={isLoading} // Use confirmLoading instead of loading
       centered
       title={initialValues ? "Edit Menu" : "Add Menu"}

@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Button, Popconfirm, Tooltip } from "antd";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import useAxiosAPI from "@/apis/useAxios";
@@ -15,6 +14,8 @@ import {
   SorterResult,
   TableCurrentDataSource,
 } from "antd/es/table/interface";
+import { Table, Button, Tooltip, Popconfirm } from "antd";
+import toast from "react-hot-toast";
 
 // Define DataType as TAppointment
 type DataType = TAppointment;
@@ -76,11 +77,12 @@ const AppointmentsTable = () => {
     useMutation({
       mutationFn: (id: string) => deleteData(API_ROUTES.APPOINTMENT.DELETE, id),
       onSuccess: () => {
-        console.log("Appointment deleted successfully");
+        toast.success("Appointment deleted successfully");
         refetchAppointments();
       },
       onError: (error) => {
         console.log("Error deleting appointment", error);
+        toast.error("Error deleting appointment");
       },
     });
 
@@ -90,11 +92,13 @@ const AppointmentsTable = () => {
       mutationFn: (editData: { id: string; data: TAppointment }) =>
         putData(API_ROUTES.APPOINTMENT.EDIT, editData.id, editData.data),
       onSuccess: () => {
+        toast.success("Appointment edited successfully");
         setIsAppointmentModalOpen(false);
         refetchAppointments();
       },
       onError: (error) => {
         console.log("Error editing appointment", error);
+        toast.error("Error editing appointment");
       },
     });
 
@@ -102,9 +106,11 @@ const AppointmentsTable = () => {
   useEffect(() => {
     if (error) {
       console.log("Error fetching appointments", error);
+      toast.error("Error fetching appointments");
     }
     if (menuError) {
       console.log("Error fetching menu items", menuError);
+      toast.error("Error fetching menu items");
     }
   }, [error, menuError]);
 
@@ -224,6 +230,7 @@ const AppointmentsTable = () => {
         const total = getServicesTotal(record.services, menuItems as TMenu[]);
         return `₹${total}`;
       },
+      width: 80,
     },
     {
       title: "Message",
@@ -250,12 +257,16 @@ const AppointmentsTable = () => {
 
           <Popconfirm
             title="Are you sure you want to delete this appointment?"
-            onConfirm={() => handleDelete(record?._id)}
+            onConfirm={() => handleDelete(record._id)}
             okText="Yes"
-            okButtonProps={{ danger: true }}
             cancelText="No"
+            placement="left"
           >
-            <Button danger icon={<DeleteOutlined />} />
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              // onClick={() => handleDelete(record._id)}
+            />
           </Popconfirm>
         </div>
       ),
@@ -299,7 +310,6 @@ const AppointmentsTable = () => {
         open={isAppointmentModalOpen}
         onCancel={() => setIsAppointmentModalOpen(false)} // Close the modal
         onSubmit={(data) => {
-          console.log("Data", data);
           if (editData?._id) {
             editAppointment({ id: editData._id, data });
           }

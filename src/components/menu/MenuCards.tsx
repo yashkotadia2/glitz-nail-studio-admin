@@ -20,7 +20,7 @@ import { useMutation } from "@tanstack/react-query";
 import useAxiosAPI from "@/apis/useAxios";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import { useQueryClient } from "@tanstack/react-query";
-import { message } from "antd";
+import toast from "react-hot-toast";
 
 const MenuCards: FC<{ items: TMenu[] }> = ({ items: menuItems }) => {
   const queryClient = useQueryClient();
@@ -32,7 +32,7 @@ const MenuCards: FC<{ items: TMenu[] }> = ({ items: menuItems }) => {
     mutationFn: (newOrder: string[]) =>
       putData(API_ROUTES.MENU.REORDER, null, { newOrder }),
     onError: () => {
-      message.error("Error reordering menu items");
+      toast.error("Error reordering menu items");
       queryClient.invalidateQueries({ queryKey: ["menu"] }); // This will trigger a refetch of the menu data
     },
   });
@@ -78,22 +78,24 @@ const MenuCards: FC<{ items: TMenu[] }> = ({ items: menuItems }) => {
   }, [menuItems]);
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter} // Use closestCenter strategy
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext
-        items={itemsState.map((item) => item._id)}
-        strategy={rectSortingStrategy} // Rectangular sorting strategy
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter} // Use closestCenter strategy
+        onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {itemsState.map((item) => (
-            <SortableMenuItem key={item._id} id={item._id} item={item} />
-          ))}
-        </div>
-      </SortableContext>
-    </DndContext>
+        <SortableContext
+          items={itemsState.map((item) => item._id)}
+          strategy={rectSortingStrategy} // Rectangular sorting strategy
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {itemsState.map((item) => (
+              <SortableMenuItem key={item._id} id={item._id} item={item} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </>
   );
 };
 

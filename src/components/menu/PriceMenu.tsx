@@ -8,11 +8,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { API_ROUTES } from "@/apis/apiRoutes";
 import useAxiosAPI from "@/apis/useAxios";
-import { message } from "antd";
 import PageLoader from "../loaders/PageLoader";
 import groupByCategory from "@/lib/groupByCategory";
 import MenuCategories from "./MenuCategories";
 import { useScreenWidth } from "@/hooks/useScreenWidth";
+import toast from "react-hot-toast";
 
 const buttonText = {
   mobile: "",
@@ -41,11 +41,12 @@ const PriceMenu = () => {
     mutationKey: ["addMenu"],
     mutationFn: (data: TMenuWithoutId) => postData(API_ROUTES.MENU.ADD, data),
     onSuccess: () => {
+      toast.success("Menu item added successfully");
       setIsMenuModalOpen(false);
       refetchMenu();
     },
     onError: () => {
-      message.error("Error adding menu item");
+      toast.error("Error adding menu item");
     },
   });
 
@@ -55,7 +56,7 @@ const PriceMenu = () => {
 
   useEffect(() => {
     if (error) {
-      message.error("Error fetching menu items");
+      toast.error("Error fetching menu items");
     }
   }, [error]);
 

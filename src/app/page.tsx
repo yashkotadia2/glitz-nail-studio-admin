@@ -19,6 +19,8 @@ import Videos from "@/components/videos/Videos";
 import Flyer from "@/components/flyer/Flyer";
 import Appointments from "@/components/appointments/Appointments";
 import { useScreenWidth } from "@/hooks/useScreenWidth";
+import "@ant-design/v5-patch-for-react-19";
+import { Toaster } from "react-hot-toast";
 
 const { Content, Sider } = Layout;
 
@@ -72,45 +74,48 @@ const Home: React.FC = () => {
   }, [deviceType, selectedKey]);
 
   return (
-    <Layout>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        className="h-[100dvh] overflow-auto relative bg-white"
-        collapsedWidth={deviceType === "mobile" ? 0 : 70}
-      >
-        <div className="w-full bg-white py-2">
-          <Image
-            width={collapsed ? 40 : 100}
-            src={glitzLogo}
-            alt="glitz logo"
-            className="m-auto"
-          />
-        </div>
-        <Menu
-          selectedKeys={[selectedKey]}
-          onClick={(e) => setSelectedKey(e.key.toString())}
-          mode="inline"
-          items={items}
-          className="h-fit"
-        />
-      </Sider>
-      <Button
-        style={{
-          left: collapsed ? (deviceType === "mobile" ? -1 : 69) : 199,
-        }}
-        icon={collapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute bottom-2 w-12 z-50 rounded-none border-l-0 opacity-60"
-      />
-
+    <>
+      <Toaster />
       <Layout>
-        <Content>
-          <div className="p-4 h-[100dvh]">{menuItems[selectedKey]}</div>
-        </Content>
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          className="h-[100dvh] overflow-auto relative bg-white"
+          collapsedWidth={deviceType === "mobile" ? 0 : 70}
+        >
+          <div className="w-full bg-white py-2">
+            <Image
+              width={collapsed ? 40 : 100}
+              src={glitzLogo}
+              alt="glitz logo"
+              className="m-auto"
+            />
+          </div>
+          <Menu
+            selectedKeys={[selectedKey]}
+            onClick={(e) => setSelectedKey(e.key.toString())}
+            mode="inline"
+            items={items}
+            className="h-fit"
+          />
+        </Sider>
+        <Button
+          style={{
+            left: collapsed ? (deviceType === "mobile" ? -1 : 69) : 199,
+          }}
+          icon={collapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute bottom-2 w-12 z-50 rounded-none border-l-0 opacity-60"
+        />
+
+        <Layout>
+          <Content>
+            <div className="p-4 h-[100dvh]">{menuItems[selectedKey]}</div>
+          </Content>
+        </Layout>
       </Layout>
-    </Layout>
+    </>
   );
 };
 

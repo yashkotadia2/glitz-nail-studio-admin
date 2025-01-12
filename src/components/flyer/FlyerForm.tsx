@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { InboxOutlined } from "@ant-design/icons";
-import { Upload, Form, Button, message } from "antd";
+import { Upload, Form, Button } from "antd";
 import type { UploadFile, UploadProps } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import useAxiosAPI from "@/apis/useAxios";
@@ -8,6 +8,7 @@ import { API_ROUTES } from "@/apis/apiRoutes";
 import PageLoader from "../loaders/PageLoader";
 import { useQueryClient } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
+import toast from "react-hot-toast";
 
 type UploadChangeParam = {
   file: UploadFile;
@@ -27,12 +28,12 @@ const { Dragger } = Upload;
 const FlyerForm = () => {
   const [isCompressing, setIsCompressing] = useState(false);
   const queryClient = useQueryClient();
+
   const { putData } = useAxiosAPI();
 
   const { mutate: uploadFlyer, isPending } = useMutation({
     mutationKey: ["uploadFlyer"],
     mutationFn: (file: UploadFile) => {
-      console.log("Uploading file:", file);
       const formData = new FormData();
       if (file.originFileObj) {
         formData.append("fileName", file.name);
@@ -42,9 +43,10 @@ const FlyerForm = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["flyerImages"] });
+      toast.success("Image uploaded successfully!");
     },
     onError: () => {
-      alert("File upload failed!");
+      toast.error("Image upload failed!");
     },
   });
 
@@ -64,7 +66,7 @@ const FlyerForm = () => {
       // Return the compressed file as a File object
       return new File([compressedFile], file.name, { type: file.type });
     } catch {
-      message.error("Image compression failed!");
+      toast.error("Image compression failed!");
       return Upload.LIST_IGNORE;
     } finally {
       setIsCompressing(false);
