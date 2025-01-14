@@ -20,7 +20,10 @@ import Flyer from "@/components/flyer/Flyer";
 import Appointments from "@/components/appointments/Appointments";
 import { useScreenWidth } from "@/hooks/useScreenWidth";
 import "@ant-design/v5-patch-for-react-19";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import AuthModal from "@/components/auth/AuthModal";
+
+const ACCESS_CODE = process.env.NEXT_PUBLIC_ACCESS_CODE;
 
 const { Content, Sider } = Layout;
 
@@ -66,6 +69,8 @@ const Home: React.FC = () => {
   const deviceType = useScreenWidth();
   const { selectedKey, setSelectedKey } = useSelectedKey();
   const [collapsed, setCollapsed] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(true);
+  const [isValidUser, setIsValidUser] = useState(true);
 
   useEffect(() => {
     if (deviceType === "mobile") {
@@ -76,45 +81,64 @@ const Home: React.FC = () => {
   return (
     <>
       <Toaster />
-      <Layout>
-        <Sider
-          trigger={null}
-          collapsible
-          collapsed={collapsed}
-          className="h-[100dvh] overflow-auto relative bg-white"
-          collapsedWidth={deviceType === "mobile" ? 0 : 70}
-        >
-          <div className="w-full bg-white py-2">
-            <Image
-              width={collapsed ? 40 : 100}
-              src={glitzLogo}
-              alt="glitz logo"
-              className="m-auto"
+      {isValidUser ? (
+        <>
+          <Layout>
+            <Sider
+              trigger={null}
+              collapsible
+              collapsed={collapsed}
+              className="h-[100dvh] overflow-auto relative bg-white"
+              collapsedWidth={deviceType === "mobile" ? 0 : 70}
+            >
+              <div className="w-full bg-white py-2">
+                <Image
+                  width={collapsed ? 40 : 100}
+                  src={glitzLogo}
+                  alt="glitz logo"
+                  className="m-auto"
+                />
+              </div>
+              <Menu
+                selectedKeys={[selectedKey]}
+                onClick={(e) => setSelectedKey(e.key.toString())}
+                mode="inline"
+                items={items}
+                className="h-fit"
+              />
+            </Sider>
+            <Button
+              style={{
+                left: collapsed ? (deviceType === "mobile" ? -1 : 69) : 199,
+              }}
+              icon={collapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
+              onClick={() => setCollapsed(!collapsed)}
+              className="absolute bottom-2 w-12 z-50 rounded-none border-l-0 opacity-60"
             />
-          </div>
-          <Menu
-            selectedKeys={[selectedKey]}
-            onClick={(e) => setSelectedKey(e.key.toString())}
-            mode="inline"
-            items={items}
-            className="h-fit"
-          />
-        </Sider>
-        <Button
-          style={{
-            left: collapsed ? (deviceType === "mobile" ? -1 : 69) : 199,
-          }}
-          icon={collapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
-          onClick={() => setCollapsed(!collapsed)}
-          className="absolute bottom-2 w-12 z-50 rounded-none border-l-0 opacity-60"
-        />
 
-        <Layout>
-          <Content>
-            <div className="p-4 h-[100dvh]">{menuItems[selectedKey]}</div>
-          </Content>
-        </Layout>
-      </Layout>
+            <Layout>
+              <Content>
+                <div className="p-4 h-[100dvh]">{menuItems[selectedKey]}</div>
+              </Content>
+            </Layout>
+          </Layout>
+        </>
+      ) : (
+        <AuthModal
+          open={isAuthModalOpen}
+          onCancel={() => setIsAuthModalOpen(false)}
+          onFinish={(values) => {
+            console.log(values);
+            if (values.code.toString() === ACCESS_CODE) {
+              setIsValidUser(true);
+              setIsAuthModalOpen(false);
+            } else {
+              setIsValidUser(false);
+              toast.error("Invalid code");
+            }
+          }}
+        />
+      )}
     </>
   );
 };

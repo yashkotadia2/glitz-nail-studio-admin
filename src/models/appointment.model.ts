@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 // Define the Appointment Schema
 const AppointmentSchema: Schema = new mongoose.Schema({
@@ -7,11 +8,15 @@ const AppointmentSchema: Schema = new mongoose.Schema({
     required: true,
   },
   number: {
-    type: Number,
+    type: String, // Since international numbers require '+' and country code, use String
     required: true,
     validate: {
-      validator: (v: number) => /^[0-9]{10}$/.test(v.toString()),
-      message: "Phone number must be a 10-digit number",
+      validator: function (v: string) {
+        // Parse and validate the phone number using libphonenumber-js
+        const phoneNumber = parsePhoneNumberFromString(v);
+        return phoneNumber ? phoneNumber.isValid() : false;
+      },
+      message: "Invalid phone number",
     },
   },
   date: {

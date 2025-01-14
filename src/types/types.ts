@@ -1,3 +1,29 @@
+// TWILIO SMS RESPONSE TYPES
+export type TTwilioMessageResponse = {
+  account_sid: string;
+  api_version: string;
+  body: string;
+  date_created: string;
+  date_sent: string | null;
+  date_updated: string;
+  direction: string;
+  error_code: number | null;
+  error_message: string | null;
+  from: string;
+  messaging_service_sid: string | null;
+  num_media: string;
+  num_segments: string;
+  price: string | null;
+  price_unit: string;
+  sid: string;
+  status: string;
+  subresource_uris: {
+    media: string;
+  };
+  to: string;
+  uri: string;
+};
+
 // APPOINTMENT TYPES
 export type TAppointment = {
   _id: string;

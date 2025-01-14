@@ -37,3 +37,9 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Modern browsers */
 }
+
+
+.custom-react-number-input input:focus-visible {
+  border: none !important;
+  outline: none; /* Optional: Removes the outline if desired */
+}

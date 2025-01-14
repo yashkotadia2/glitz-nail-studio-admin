@@ -1,13 +1,5 @@
 import React, { JSX, useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  InputNumber,
-  DatePicker,
-  TimePicker,
-  Select,
-  Modal,
-} from "antd";
+import { Form, Input, DatePicker, TimePicker, Select, Modal } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { TAppointment, TMenu } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +7,9 @@ import useAxiosAPI from "@/apis/useAxios";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import toReadableString from "@/lib/toReadableString";
 import RUPEE_SYMBOL from "@/lib/rupeeSymbol";
+
+import "react-phone-number-input/style.css";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 
 const { TextArea } = Input;
 
@@ -35,6 +30,7 @@ const AppointmentModal = ({
 }: AppointmentModalProps) => {
   const [form] = Form.useForm();
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
+  const [phoneValue, setPhoneValue] = useState<string | undefined>();
 
   const { getData } = useAxiosAPI();
   const { data: menuItems, isPending: isMenuLoading } = useQuery({
@@ -124,21 +120,27 @@ const AppointmentModal = ({
           <Form.Item
             name="number"
             label="Number"
-            validateDebounce={1000}
+            validateDebounce={1200}
             rules={[
-              { required: true, message: "Please enter your phone number" },
+              { required: true, message: "Please enter your number" },
               {
-                pattern: /^[0-9]{10}$/,
-                message: "Please enter 10-digit phone number",
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.reject("");
+                  } else if (!isValidPhoneNumber(value)) {
+                    return Promise.reject("Please enter a valid number");
+                  }
+                  return Promise.resolve();
+                },
               },
             ]}
           >
-            <InputNumber
-              controls={false}
-              prefix="+91"
-              className="w-full"
-              placeholder="Enter your phone number"
-              style={{ width: "100%" }} // Ensure full width of the input field
+            <PhoneInput
+              placeholder="Enter phone number"
+              value={phoneValue}
+              onChange={setPhoneValue}
+              defaultCountry="IN" // Set default country code (e.g., +91 for India)
+              className="custom-react-number-input border border-[#d9d9d9] w-full rounded-full px-2 h-[33px] hover:border-theme-primary focus:border-theme-primary"
             />
           </Form.Item>
         </div>
