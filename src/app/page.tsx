@@ -22,8 +22,9 @@ import { useScreenWidth } from "@/hooks/useScreenWidth";
 import "@ant-design/v5-patch-for-react-19";
 import toast, { Toaster } from "react-hot-toast";
 import AuthModal from "@/components/auth/AuthModal";
-
-const ACCESS_CODE = process.env.NEXT_PUBLIC_ACCESS_CODE;
+import { useMutation } from "@tanstack/react-query";
+import useAxiosAPI from "@/apis/useAxios";
+import { API_ROUTES } from "@/apis/apiRoutes";
 
 const { Content, Sider } = Layout;
 
@@ -71,6 +72,28 @@ const Home: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(true);
   const [isValidUser, setIsValidUser] = useState(true);
+  const { postData } = useAxiosAPI();
+
+  const { mutate: verifyUser, isPending } = useMutation({
+    mutationFn: (data: { code: string }) =>
+      postData(API_ROUTES.AUTH.VERIFY, data),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onSuccess: (data: any) => {
+      if (data?.authenticated) {
+        setIsValidUser(true);
+        setIsAuthModalOpen(false);
+      }
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (error: any) => {
+      console.log("error", error?.response?.data);
+
+      if (error?.response?.data?.authenticated === false) {
+        setIsValidUser(false);
+        toast.error(error?.response?.data?.error || "Invalid code");
+      }
+    },
+  });
 
   useEffect(() => {
     if (deviceType === "mobile") {
@@ -125,17 +148,19 @@ const Home: React.FC = () => {
         </>
       ) : (
         <AuthModal
+          loading={isPending}
           open={isAuthModalOpen}
           onCancel={() => setIsAuthModalOpen(false)}
           onFinish={(values) => {
             console.log(values);
-            if (values.code.toString() === ACCESS_CODE) {
-              setIsValidUser(true);
-              setIsAuthModalOpen(false);
-            } else {
-              setIsValidUser(false);
-              toast.error("Invalid code");
-            }
+            verifyUser(values);
+            // if (values.code.toString() === ACCESS_CODE) {
+            //   setIsValidUser(true);
+            //   setIsAuthModalOpen(false);
+            // } else {
+            //   setIsValidUser(false);
+            //   toast.error("Invalid code");
+            // }
           }}
         />
       )}

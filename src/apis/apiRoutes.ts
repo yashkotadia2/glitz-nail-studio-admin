@@ -1,4 +1,8 @@
 export const API_ROUTES = {
+  AUTH: {
+    VERIFY: "/auth/verify",
+  },
+
   MENU: {
     GET_ALL: "/menu",
     ADD: "/menu/add",

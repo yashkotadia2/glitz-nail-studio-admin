@@ -2,16 +2,23 @@ import React from "react";
 import { Modal, Form, InputNumber, Button } from "antd";
 
 interface AuthModalProps {
+  loading?: boolean;
   open: boolean;
   onCancel: () => void;
-  onFinish: (values: { code: number }) => void;
+  onFinish: (values: { code: string }) => void;
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ open, onCancel, onFinish }) => {
+const AuthModal: React.FC<AuthModalProps> = ({
+  loading,
+  open,
+  onCancel,
+  onFinish,
+}) => {
   const [form] = Form.useForm();
 
   return (
     <Modal
+      loading={loading}
       centered
       title="Enter Authentication Code"
       open={open}
