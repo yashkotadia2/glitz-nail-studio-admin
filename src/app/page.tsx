@@ -8,6 +8,7 @@ import {
   TbLibraryPhoto,
   TbVideo,
   TbAd,
+  TbBeach,
 } from "react-icons/tb";
 import { RiMenuFold2Fill, RiMenuUnfold2Fill } from "react-icons/ri";
 import glitzLogo from "../../public/icons/glitz_text_logo.png";
@@ -25,6 +26,7 @@ import AuthModal from "@/components/auth/AuthModal";
 import { useMutation } from "@tanstack/react-query";
 import useAxiosAPI from "@/apis/useAxios";
 import { API_ROUTES } from "@/apis/apiRoutes";
+import Holiday from "@/components/holiday/Holiday";
 
 const { Content, Sider } = Layout;
 
@@ -36,6 +38,7 @@ const menuItems: {
   photos: <Photos />,
   videos: <Videos />,
   flyer: <Flyer />,
+  holiday: <Holiday />,
 };
 
 const items = [
@@ -63,6 +66,11 @@ const items = [
     key: "flyer",
     icon: <TbAd />,
     label: "Flyer",
+  },
+  {
+    key: "holiday",
+    icon: <TbBeach />,
+    label: "Holiday",
   },
 ];
 
@@ -154,13 +162,6 @@ const Home: React.FC = () => {
           onFinish={(values) => {
             console.log(values);
             verifyUser(values);
-            // if (values.code.toString() === ACCESS_CODE) {
-            //   setIsValidUser(true);
-            //   setIsAuthModalOpen(false);
-            // } else {
-            //   setIsValidUser(false);
-            //   toast.error("Invalid code");
-            // }
           }}
         />
       )}

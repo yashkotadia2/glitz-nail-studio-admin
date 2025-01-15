@@ -23,4 +23,11 @@ export const API_ROUTES = {
     EDIT: "/appointment/edit",
     DELETE: "/appointment/delete",
   },
+
+  HOLIDAY: {
+    GET_ALL: "/holiday",
+    ADD: "/holiday/add",
+    EDIT: "/holiday/edit",
+    DELETE: "/holiday/delete",
+  },
 };

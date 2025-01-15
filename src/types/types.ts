@@ -70,3 +70,11 @@ export type TFlyer = {
   fileKey: string;
   uploadDate: string;
 };
+
+// HOLIDAY TYPES
+export type THoliday = {
+  _id: string;
+  holidayName: string;
+  holidayDate: string;
+  description: string;
+};

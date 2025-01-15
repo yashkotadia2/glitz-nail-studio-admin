@@ -4,10 +4,9 @@ import usePanelStore from "@/zustand/usePanelStore";
 import AppointmentModal from "./AppointmentModal";
 import { useScreenWidth } from "@/hooks/useScreenWidth";
 import useAxiosAPI from "@/apis/useAxios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_ROUTES } from "@/apis/apiRoutes";
 import AppointmentsTable from "./AppointmentsTable";
-import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const buttonText = {
