@@ -30,4 +30,8 @@ export const API_ROUTES = {
     EDIT: "/holiday/edit",
     DELETE: "/holiday/delete",
   },
+
+  WORKING_HOURS: {
+    GET: "/working-hours",
+  },
 };

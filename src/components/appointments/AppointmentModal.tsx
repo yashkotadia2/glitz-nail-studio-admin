@@ -10,6 +10,7 @@ import RUPEE_SYMBOL from "@/lib/rupeeSymbol";
 
 import "react-phone-number-input/style.css";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import toast from "react-hot-toast";
 
 const { TextArea } = Input;
 
@@ -33,10 +34,36 @@ const AppointmentModal = ({
   const [phoneValue, setPhoneValue] = useState<string | undefined>();
 
   const { getData } = useAxiosAPI();
-  const { data: menuItems, isPending: isMenuLoading } = useQuery({
+
+  const {
+    data: menuItems,
+    isPending: isMenuLoading,
+    error: menuError,
+  } = useQuery({
     queryKey: ["menu"],
     queryFn: () => getData(API_ROUTES.MENU.GET_ALL),
   });
+
+  const {
+    data: workingHours,
+    isPending: isWorkingHourLoading,
+    error: workingHoursError,
+  } = useQuery({
+    queryKey: ["working-hours"],
+    queryFn: () => getData(API_ROUTES.WORKING_HOURS.GET),
+  });
+
+  const {
+    data: holidays,
+    isPending: isHolidayLoading,
+    error: holidaysError,
+  } = useQuery({
+    queryKey: ["holidays"],
+    queryFn: () => getData(API_ROUTES.HOLIDAY.GET_ALL),
+  });
+
+  console.log("holidays", holidays);
+  console.log("workingHours", workingHours);
 
   const handleSubmit = (values: TAppointment) => {
     onSubmit(values);
@@ -86,6 +113,20 @@ const AppointmentModal = ({
     setSelectedDate(date);
   };
 
+  useEffect(() => {
+    if (menuError) {
+      toast.error("Error fetching menu items");
+    }
+
+    if (workingHoursError) {
+      toast.error("Error fetching working hours");
+    }
+
+    if (holidaysError) {
+      toast.error("Error fetching holidays");
+    }
+  }, [menuError, workingHoursError, holidaysError]);
+
   return (
     <Modal
       forceRender
@@ -94,7 +135,7 @@ const AppointmentModal = ({
       open={open}
       onCancel={onCancel}
       onOk={() => form.submit()}
-      confirmLoading={loading}
+      confirmLoading={loading || isWorkingHourLoading || isHolidayLoading}
     >
       <Form
         form={form}

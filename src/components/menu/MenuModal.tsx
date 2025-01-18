@@ -94,6 +94,24 @@ const MenuModal = ({
           </Select>
         </Form.Item>
 
+        {/* Price */}
+        <Form.Item
+          name="duration"
+          label={"Duration"}
+          rules={[
+            { required: true, message: "Please enter your duration" },
+            { type: "number", message: "Please enter a valid number" },
+          ]}
+        >
+          <InputNumber
+            controls={true}
+            className="w-full"
+            suffix="minutes"
+            min={0}
+            placeholder="Enter your Duration in minutes"
+          />
+        </Form.Item>
+
         {/* Description */}
         <Form.Item
           name="menuDescription"

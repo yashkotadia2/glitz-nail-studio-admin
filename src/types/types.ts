@@ -53,6 +53,7 @@ export type TMenu = {
   menuPrice: number;
   menuCategory: TMenuCategory["value"];
   menuDescription?: string;
+  duration: number;
 };
 
 export type TMenuWithoutId = Omit<TMenu, "id">;

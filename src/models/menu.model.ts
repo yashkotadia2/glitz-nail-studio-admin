@@ -21,6 +21,10 @@ const MenuSchema: Schema = new mongoose.Schema({
     required: true,
     default: 0, // Default value for the order field
   },
+  duration: {
+    type: Number, // Adding duration field in minutes
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -3,9 +3,8 @@ import { API_ROUTES } from "@/apis/apiRoutes";
 import useAxiosAPI from "@/apis/useAxios";
 import { TMenu, TMenuWithoutId } from "@/types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Tooltip } from "antd";
 import { TbPencil, TbTrash } from "react-icons/tb";
-import PageLoader from "../loaders/PageLoader";
 import MenuModal from "./MenuModal";
 import RUPEE_SYMBOL from "@/lib/rupeeSymbol";
 import toast from "react-hot-toast";
@@ -16,7 +15,7 @@ const MenuCard = ({ item }: { item: TMenu }) => {
 
   const { deleteData, putData } = useAxiosAPI();
 
-  const { mutate: deleteMenu, isPending: isDeleting } = useMutation({
+  const { mutate: deleteMenu } = useMutation({
     mutationFn: (id: string) => deleteData(API_ROUTES.MENU.DELETE, id),
     onSuccess: () => {
       toast.success("Menu item deleted successfully");
@@ -48,22 +47,27 @@ const MenuCard = ({ item }: { item: TMenu }) => {
     deleteMenu(id);
   };
 
-  if (isDeleting) {
-    return <PageLoader />;
-  }
-
   return (
     <>
       <div
         title="Drag to reorder"
-        className="w-full p-5 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg menu-card-wrapper transition"
+        className="flex flex-col w-full h-44 p-5 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg menu-card-wrapper transition"
       >
-        <div className="line-clamp-1 mb-2 text-xl font-bold tracking-tight text-gray-900">
-          {item.menuName}
+        <div className="line-clamp-1 mb-2 text-xl font-bold tracking-tight text-gray-900 w-full flex items-center justify-between">
+          <Tooltip trigger={["click"]} title={item.menuName}>
+            <div className="text-2xl line-clamp-1">{item.menuName}</div>
+          </Tooltip>
+          <div className="text-sm text-gray-500 font-semibold">
+            {item.duration}&nbsp;mins
+          </div>
         </div>
-        <p className="mb-3 font-normal text-gray-700">{item.menuDescription}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-gray-900">
+        <Tooltip trigger={["click"]} title={item.menuDescription}>
+          <p className="mb-3 font-normal text-gray-700 line-clamp-2">
+            {item.menuDescription}
+          </p>
+        </Tooltip>
+        <div className="mt-auto flex items-center justify-between">
+          <span className="text-xl font-semibold text-gray-900">
             {RUPEE_SYMBOL}
             {item.menuPrice}
           </span>
