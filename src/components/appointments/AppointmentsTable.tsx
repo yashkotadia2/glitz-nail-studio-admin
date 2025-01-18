@@ -20,6 +20,7 @@ import toast from "react-hot-toast";
 // Define DataType as TAppointment
 type DataType = TAppointment;
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import convertMinutesToReadableFormat from "@/lib/convertMinutesToReadableFormat";
 
 dayjs.extend(isSameOrAfter);
 
@@ -131,6 +132,21 @@ const AppointmentsTable = () => {
     }, 0);
   };
 
+  const getServicesDuration = (
+    serviceIds: string[],
+    menuItems: TMenu[]
+  ): number => {
+    if (!menuItems || serviceIds?.length === 0) return 0;
+
+    return serviceIds?.reduce((duration, serviceId) => {
+      const menuItem = menuItems.find((item: TMenu) => item._id === serviceId);
+      if (menuItem) {
+        return duration + menuItem.duration; // Assuming menuPrice is a number
+      }
+      return duration;
+    }, 0);
+  };
+
   // Map the service IDs to corresponding menu items' name and price
   const getServiceDetails = (serviceIds: string[], menuItems: TMenu[]) => {
     if (!menuItems) return { services: [], total: 0 };
@@ -231,6 +247,19 @@ const AppointmentsTable = () => {
         return `₹${total}`;
       },
       width: 80,
+    },
+    {
+      title: "Duration",
+      key: "duration",
+      render: (_: unknown, record: TAppointment) => {
+        console.log("Record", record);
+        const totalDuration = getServicesDuration(
+          record.services,
+          menuItems as TMenu[]
+        );
+        return `${convertMinutesToReadableFormat(totalDuration)}`;
+      },
+      width: 90,
     },
     {
       title: "Message",

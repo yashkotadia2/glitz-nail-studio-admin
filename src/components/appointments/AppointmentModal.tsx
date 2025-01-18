@@ -1,7 +1,7 @@
 import React, { JSX, useEffect, useState } from "react";
 import { Form, Input, DatePicker, TimePicker, Select, Modal } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import { TAppointment, TMenu } from "@/types/types";
+import { TAppointment, TMenu, THoliday } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosAPI from "@/apis/useAxios";
 import { API_ROUTES } from "@/apis/apiRoutes";
@@ -48,7 +48,10 @@ const AppointmentModal = ({
     data: workingHours,
     isPending: isWorkingHourLoading,
     error: workingHoursError,
-  } = useQuery({
+  } = useQuery<{
+    startTime: string;
+    endTime: string;
+  }>({
     queryKey: ["working-hours"],
     queryFn: () => getData(API_ROUTES.WORKING_HOURS.GET),
   });
@@ -57,13 +60,12 @@ const AppointmentModal = ({
     data: holidays,
     isPending: isHolidayLoading,
     error: holidaysError,
-  } = useQuery({
+  } = useQuery<{
+    holidays: THoliday[];
+  }>({
     queryKey: ["holidays"],
     queryFn: () => getData(API_ROUTES.HOLIDAY.GET_ALL),
   });
-
-  console.log("holidays", holidays);
-  console.log("workingHours", workingHours);
 
   const handleSubmit = (values: TAppointment) => {
     onSubmit(values);
@@ -81,31 +83,74 @@ const AppointmentModal = ({
     }
   }, [initialValues, form]);
 
-  // Disable dates before today
+  // Disable dates before today and holidays
   const disabledDate = (current: Dayjs) => {
-    return current && current < dayjs().startOf("day");
+    if (!current) return false;
+
+    // Disable past dates
+    const isPastDate = current < dayjs().startOf("day");
+
+    // Disable holidays
+    const isHoliday =
+      Array.isArray(holidays) &&
+      holidays.some((holiday: THoliday) =>
+        dayjs(holiday.holidayDate).isSame(current, "day")
+      );
+
+    return isPastDate || isHoliday;
   };
 
-  // Disable times before the current time if today is selected
+  // Disable times outside of working hours and before the current time (for today)
   const getDisabledTime = () => {
+    const startTime = dayjs(workingHours?.startTime, "HH:mm");
+    const endTime = dayjs(workingHours?.endTime, "HH:mm");
+
+    // If today is selected, disable times before the current time
     if (selectedDate && dayjs(selectedDate).isSame(dayjs(), "day")) {
-      const currentHour = dayjs().hour();
+      const currentHour = dayjs().hour() + 1;
       const currentMinute = dayjs().minute();
 
       return {
-        disabledHours: () =>
-          [...Array(24).keys()].filter((hour) => hour < currentHour),
+        disabledHours: () => {
+          // Disable hours outside working hours and before current time
+          return [...Array(24).keys()].filter(
+            (hour) =>
+              hour < startTime.hour() ||
+              hour > endTime.hour() ||
+              hour < currentHour
+          );
+        },
         disabledMinutes: (selectedHour: number) => {
+          // Disable minutes before the current minute for the current hour
           if (selectedHour === currentHour) {
             return [...Array(60).keys()].filter(
               (minute) => minute < currentMinute
             );
           }
+          // Disable all minutes except 0 when selectedHour is equal to endTime.hour()
+          if (selectedHour === endTime.hour()) {
+            return [...Array(60).keys()].filter((minute) => minute !== 0);
+          }
           return [];
         },
       };
     }
-    return {}; // No disabled times if a different date is selected
+
+    // Disable times outside working hours for other days
+    return {
+      disabledHours: () => {
+        return [...Array(24).keys()].filter(
+          (hour) => hour < startTime.hour() || hour > endTime.hour()
+        );
+      },
+      disabledMinutes: (selectedHour: number) => {
+        // Disable all minutes except 0 when selectedHour is equal to endTime.hour() for any day
+        if (selectedHour === endTime.hour()) {
+          return [...Array(60).keys()].filter((minute) => minute !== 0);
+        }
+        return [];
+      },
+    };
   };
 
   // Handle date change
@@ -142,8 +187,8 @@ const AppointmentModal = ({
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
-          date: dayjs(),
-          time: dayjs(),
+          date: null,
+          time: null,
         }}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
