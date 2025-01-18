@@ -199,7 +199,7 @@ const AppointmentModal = ({
             rules={[{ required: true, message: "Please enter your name" }]}
             className="mb-0"
           >
-            <Input placeholder="Enter your name" />
+            <Input placeholder="Enter your first and last name" />
           </Form.Item>
 
           {/* Number Field */}
