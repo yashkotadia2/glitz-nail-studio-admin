@@ -51,11 +51,11 @@ const MenuCard = ({ item }: { item: TMenu }) => {
     <>
       <div
         title="Drag to reorder"
-        className="flex flex-col w-full h-44 p-5 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg menu-card-wrapper transition"
+        className="flex flex-col w-full h-40 p-5 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg menu-card-wrapper transition"
       >
         <div className="line-clamp-1 mb-2 text-xl font-bold tracking-tight text-gray-900 w-full flex items-center justify-between">
           <Tooltip trigger={["click"]} title={item.menuName}>
-            <div className="text-2xl line-clamp-1">{item.menuName}</div>
+            <div className="text-xl line-clamp-1">{item.menuName}</div>
           </Tooltip>
           <div className="text-sm text-gray-500 font-semibold">
             {item.duration}&nbsp;mins
