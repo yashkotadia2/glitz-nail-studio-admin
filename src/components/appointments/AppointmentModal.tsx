@@ -35,6 +35,18 @@ const AppointmentModal = ({
 
   const { getData } = useAxiosAPI();
 
+  // Fetch appointments using useQuery
+  const {
+    data: appointments,
+    error: appointmentsError,
+    isPending: isAppointmentsLoading,
+  } = useQuery({
+    queryKey: ["appointments"],
+    queryFn: () => getData(API_ROUTES.APPOINTMENT.GET_ALL),
+  });
+
+  console.log("appointments", appointments);
+
   const {
     data: menuItems,
     isPending: isMenuLoading,
@@ -102,6 +114,14 @@ const AppointmentModal = ({
 
   // Disable times outside of working hours and before the current time (for today)
   const getDisabledTime = () => {
+    const todaysAppointments: TAppointment[] = Array.isArray(appointments)
+      ? appointments.filter((appointment: TAppointment) => {
+          return dayjs(appointment.date).isSame(selectedDate, "day");
+        })
+      : [];
+
+    console.log("currenthfgks", todaysAppointments);
+
     const startTime = dayjs(workingHours?.startTime, "HH:mm");
     const endTime = dayjs(workingHours?.endTime, "HH:mm");
 
@@ -170,7 +190,11 @@ const AppointmentModal = ({
     if (holidaysError) {
       toast.error("Error fetching holidays");
     }
-  }, [menuError, workingHoursError, holidaysError]);
+
+    if (appointmentsError) {
+      toast.error("Error fetching appointments");
+    }
+  }, [menuError, workingHoursError, holidaysError, appointmentsError]);
 
   return (
     <Modal
@@ -180,7 +204,12 @@ const AppointmentModal = ({
       open={open}
       onCancel={onCancel}
       onOk={() => form.submit()}
-      confirmLoading={loading || isWorkingHourLoading || isHolidayLoading}
+      confirmLoading={
+        loading ||
+        isWorkingHourLoading ||
+        isHolidayLoading ||
+        isAppointmentsLoading
+      }
     >
       <Form
         form={form}
@@ -199,7 +228,7 @@ const AppointmentModal = ({
             rules={[{ required: true, message: "Please enter your name" }]}
             className="mb-0"
           >
-            <Input placeholder="Enter your first and last name" />
+            <Input placeholder="Enter your name" />
           </Form.Item>
 
           {/* Number Field */}
