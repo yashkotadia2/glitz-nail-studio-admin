@@ -45,8 +45,6 @@ const AppointmentModal = ({
     queryFn: () => getData(API_ROUTES.APPOINTMENT.GET_ALL),
   });
 
-  console.log("appointments", appointments);
-
   const {
     data: menuItems,
     isPending: isMenuLoading,
@@ -114,14 +112,6 @@ const AppointmentModal = ({
 
   // Disable times outside of working hours and before the current time (for today)
   const getDisabledTime = () => {
-    const todaysAppointments: TAppointment[] = Array.isArray(appointments)
-      ? appointments.filter((appointment: TAppointment) => {
-          return dayjs(appointment.date).isSame(selectedDate, "day");
-        })
-      : [];
-
-    console.log("currenthfgks", todaysAppointments);
-
     const startTime = dayjs(workingHours?.startTime, "HH:mm");
     const endTime = dayjs(workingHours?.endTime, "HH:mm");
 
@@ -156,19 +146,100 @@ const AppointmentModal = ({
       };
     }
 
-    // Disable times outside working hours for other days
+    const selectedDatesAppointment: TAppointment[] = Array.isArray(appointments)
+      ? appointments.filter((appointment: TAppointment) => {
+          return dayjs(appointment.date).isSame(selectedDate, "day");
+        })
+      : [];
+
+    const disabledHoursLet: number[] = [];
+    const disabledMinutesLet: { [key: number]: number[] } = {};
+
+    // Disable hours/minutes based on today's appointments (applies to any day)
+    selectedDatesAppointment.forEach((appointment) => {
+      const appointmentStartTime = dayjs(appointment.time);
+      const totalServiceDuration = appointment.services.reduce(
+        (totalDuration, serviceId) => {
+          const service = (menuItems as TMenu[]).find(
+            (item) => item._id === serviceId
+          );
+          return totalDuration + (service?.duration || 0);
+        },
+        0
+      );
+      const appointmentEndTime = appointmentStartTime.add(
+        totalServiceDuration,
+        "minute"
+      );
+
+      // Disable hours and minutes within the appointment range
+      for (
+        let hour = appointmentStartTime.hour();
+        hour <= appointmentEndTime.hour();
+        hour++
+      ) {
+        // If the appointment starts and ends within the same hour
+        if (appointmentStartTime.hour() === appointmentEndTime.hour()) {
+          // Disable minutes between the start and end time within the same hour
+          disabledMinutesLet[hour] = [...Array(60).keys()].filter(
+            (minute) =>
+              minute >= appointmentStartTime.minute() &&
+              minute <= appointmentEndTime.minute()
+          );
+        } else {
+          // Disable minutes for the start hour
+          if (hour === appointmentStartTime.hour()) {
+            disabledHoursLet.push(hour);
+            disabledMinutesLet[hour] = [...Array(60).keys()].filter(
+              (minute) => minute >= appointmentStartTime.minute()
+            );
+          }
+
+          // Disable minutes for the end hour
+          if (hour === appointmentEndTime.hour()) {
+            disabledMinutesLet[hour] = [...Array(60).keys()].filter(
+              (minute) => minute <= appointmentEndTime.minute()
+            );
+          }
+
+          // Disable the entire hour if it's a full hour between start and end time
+          if (
+            hour > appointmentStartTime.hour() &&
+            hour < appointmentEndTime.hour()
+          ) {
+            if (!disabledHoursLet.includes(hour)) {
+              disabledHoursLet.push(hour);
+            }
+            disabledMinutesLet[hour] = [...Array(60).keys()]; // Disable all minutes for full hours in between
+          }
+        }
+      }
+
+      // Output disabled hours and minutes
+      return {
+        disabledHoursLet,
+        disabledMinutesLet,
+      };
+    });
+
+    // Disable times outside working hours for other days and add disabled hours/minutes from selected date's appointments
     return {
       disabledHours: () => {
-        return [...Array(24).keys()].filter(
-          (hour) => hour < startTime.hour() || hour > endTime.hour()
-        );
+        return [
+          ...[...Array(24).keys()].filter(
+            (hour) => hour < startTime.hour() || hour > endTime.hour()
+          ),
+          ...disabledHoursLet, // Append another array
+        ];
       },
       disabledMinutes: (selectedHour: number) => {
         // Disable all minutes except 0 when selectedHour is equal to endTime.hour() for any day
         if (selectedHour === endTime.hour()) {
-          return [...Array(60).keys()].filter((minute) => minute !== 0);
+          disabledMinutesLet[selectedHour] = [
+            ...[...Array(60).keys()].filter((minute) => minute !== 0), // Original disabled minutes
+          ];
         }
-        return [];
+        return disabledMinutesLet[selectedHour] || [];
       },
     };
   };
