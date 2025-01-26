@@ -115,37 +115,6 @@ const AppointmentModal = ({
     const startTime = dayjs(workingHours?.startTime, "HH:mm");
     const endTime = dayjs(workingHours?.endTime, "HH:mm");
 
-    // If today is selected, disable times before the current time
-    if (selectedDate && dayjs(selectedDate).isSame(dayjs(), "day")) {
-      const currentHour = dayjs().hour() + 1;
-      const currentMinute = dayjs().minute();
-
-      return {
-        disabledHours: () => {
-          // Disable hours outside working hours and before current time
-          return [...Array(24).keys()].filter(
-            (hour) =>
-              hour < startTime.hour() ||
-              hour > endTime.hour() ||
-              hour < currentHour
-          );
-        },
-        disabledMinutes: (selectedHour: number) => {
-          // Disable minutes before the current minute for the current hour
-          if (selectedHour === currentHour) {
-            return [...Array(60).keys()].filter(
-              (minute) => minute < currentMinute
-            );
-          }
-          // Disable all minutes except 0 when selectedHour is equal to endTime.hour()
-          if (selectedHour === endTime.hour()) {
-            return [...Array(60).keys()].filter((minute) => minute !== 0);
-          }
-          return [];
-        },
-      };
-    }
-
     const selectedDatesAppointment: TAppointment[] = Array.isArray(appointments)
       ? appointments.filter((appointment: TAppointment) => {
           return dayjs(appointment.date).isSame(selectedDate, "day");
@@ -221,6 +190,59 @@ const AppointmentModal = ({
         disabledMinutesLet,
       };
     });
+
+    // If today is selected, disable times before the current time
+    if (selectedDate && dayjs(selectedDate).isSame(dayjs(), "day")) {
+      const currentHour = dayjs().hour() + 1;
+      const currentMinute = dayjs().minute();
+
+      return {
+        disabledHours: () => {
+          // Disable hours outside working hours and before current time
+          return [
+            ...[...Array(24).keys()].filter(
+              (hour) =>
+                hour < startTime.hour() ||
+                hour > endTime.hour() ||
+                hour < currentHour
+            ),
+            ...disabledHoursLet,
+          ];
+        },
+        disabledMinutes: (selectedHour: number) => {
+          // Get disabled minutes based on the appointment for the selected hour
+          const disabledMinutesFromAppointments =
+            disabledMinutesLet[selectedHour] || [];
+
+          // Disable minutes before the current minute for the current hour (only for today)
+          if (selectedDate && dayjs(selectedDate).isSame(dayjs(), "day")) {
+            if (selectedHour === currentHour) {
+              return [
+                ...new Set([
+                  ...[...Array(60).keys()].filter(
+                    (minute) => minute < currentMinute
+                  ),
+                  ...disabledMinutesFromAppointments,
+                ]),
+              ]; // Merge and remove duplicates
+            }
+          }
+
+          // Disable all minutes except 0 when selectedHour is equal to endTime.hour()
+          if (selectedHour === endTime.hour()) {
+            return [
+              ...new Set([
+                ...[...Array(60).keys()].filter((minute) => minute !== 0),
+                ...disabledMinutesFromAppointments,
+              ]),
+            ]; // Merge and remove duplicates
+          }
+
+          // Return the disabled minutes from appointments if not today
+          return disabledMinutesFromAppointments;
+        },
+      };
+    }
 
     // Disable times outside working hours for other days and add disabled hours/minutes from selected date's appointments
     return {
