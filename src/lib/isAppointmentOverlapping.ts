@@ -1,76 +1,3 @@
-// import Appointment from "@/models/appointment.model";
-// import Menu from "@/models/menu.model";
-// import dayjs from "dayjs";
-// import customParseFormat from "dayjs/plugin/customParseFormat";
-
-// dayjs.extend(customParseFormat);
-
-// export const isAppointmentOverlapping = async (
-//   date: string,
-//   time: string,
-//   services: string[]
-// ) => {
-//   try {
-//     // Parse the provided date and time to get the start time
-//     const startDateTime = date.split("T")[0] + "T" + time.split("T")[1];
-
-//     // Fetch the duration of all selected services from the Menu model
-//     const selectedServices = await Menu.find({ _id: { $in: services } });
-
-//     // Sum the duration of all selected services (in minutes)
-//     const totalDuration = selectedServices.reduce(
-//       (acc, service) => acc + service.duration,
-//       0
-//     );
-
-//     // Calculate the end time by adding the total duration to the start time
-//     const endDateTime = dayjs(startDateTime)
-//       .add(totalDuration, "minute")
-//       .toDate();
-
-//     console.log("TimeAQW", startDateTime, totalDuration, endDateTime);
-
-//     // Query the Appointment collection to find if any appointments overlap
-//     const overlappingAppointment = await Appointment.findOne({
-//       $or: [
-//         // Check if the new appointment starts during an existing appointment
-//         {
-//           date: {
-//             $lte: endDateTime,
-//           },
-//           time: {
-//             $gte: startDateTime,
-//           },
-//         },
-//         // Check if the new appointment ends during an existing appointment
-//         {
-//           date: {
-//             $gte: startDateTime,
-//           },
-//           time: {
-//             $lte: endDateTime,
-//           },
-//         },
-//         // Check if an existing appointment fully encloses the new appointment
-//         {
-//           date: {
-//             $lte: startDateTime,
-//           },
-//           time: {
-//             $gte: endDateTime,
-//           },
-//         },
-//       ],
-//     });
-
-//     // If overlapping appointment found, return true
-//     return !!overlappingAppointment;
-//   } catch (error) {
-//     console.error("Error checking appointment overlap:", error);
-//     return false;
-//   }
-// };
-
 import Appointment from "@/models/appointment.model";
 import Menu from "@/models/menu.model";
 import dayjs from "dayjs";
@@ -87,7 +14,8 @@ dayjs.extend(isSameOrAfter);
 export const isAppointmentOverlapping = async (
   date: string,
   time: string,
-  services: string[]
+  services: string[],
+  id?: string
 ) => {
   try {
     // Parse the provided date and time to get the start time
@@ -102,6 +30,7 @@ export const isAppointmentOverlapping = async (
       date: {
         $eq: dayjs(date).toDate(),
       },
+      _id: id ? { $ne: id } : { $exists: true }, // Exclude the appointment if id is provided
     });
 
     console.log("Appointments on the same date:", appointmentsOnSameDate);

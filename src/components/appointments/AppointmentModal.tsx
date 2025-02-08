@@ -367,8 +367,7 @@ const AppointmentModal = ({
           >
             <DatePicker
               className="w-full"
-              // disabledDate={disabledDate}
-
+              disabledDate={disabledDate}
               // Disable past dates
               onChange={handleDateChange} // Update selected date
             />
@@ -384,7 +383,7 @@ const AppointmentModal = ({
               showNow={false}
               format={"h:mm a"}
               className="w-full"
-              // disabledTime={getDisabledTime}
+              disabledTime={getDisabledTime}
 
               // Disable times based on selected date
             />

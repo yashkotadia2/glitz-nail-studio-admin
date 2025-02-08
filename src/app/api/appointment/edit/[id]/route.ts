@@ -2,6 +2,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Appointment from "@/models/appointment.model"; // Adjust the path based on your project structure
 import dbConnect from "@/lib/dbConnect"; // Assuming you have a DB connection utility
+import { isTimeOutsideWorkingHours } from "@/lib/isTimeOutsideWorkingHours";
+import { isHolidayDate } from "@/lib/isHolidayDate";
+import { isAppointmentOverlapping } from "@/lib/isAppointmentOverlapping";
 
 // PUT handler for updating an appointment
 export async function PUT(req: NextRequest) {
@@ -21,6 +24,42 @@ export async function PUT(req: NextRequest) {
 
     // Parse the updated data from the request body
     const updatedData = await req.json();
+
+    const { date, time, services } = updatedData;
+
+    // Check if the appointment date falls on a holiday
+    const isHoliday = await isHolidayDate(date);
+
+    if (isHoliday) {
+      return NextResponse.json(
+        {
+          error: "The selected date is a holiday, please choose another date.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (isTimeOutsideWorkingHours(time)) {
+      return NextResponse.json(
+        { error: "Appointment time is outside working hours" },
+        { status: 400 }
+      );
+    }
+
+    // Check if the appointment overlaps
+    const isOverlapping = await isAppointmentOverlapping(
+      date,
+      time,
+      services,
+      id
+    );
+
+    if (isOverlapping) {
+      return NextResponse.json(
+        { error: "The selected time slot is already booked or overlapping" },
+        { status: 400 }
+      );
+    }
 
     // Find and update the appointment by id
     const updatedAppointment = await Appointment.findByIdAndUpdate(

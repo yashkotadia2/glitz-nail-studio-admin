@@ -34,7 +34,9 @@ const Appointments = () => {
       },
       onError: (error) => {
         console.log(error);
-        toast.error("Failed to add appointment");
+        toast.error(
+          error?.response?.data?.error || "Failed to add appointment"
+        );
       },
     });
 

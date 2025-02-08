@@ -99,7 +99,12 @@ const AppointmentsTable = () => {
       },
       onError: (error) => {
         console.log("Error editing appointment", error);
-        toast.error("Error editing appointment");
+        const axiosError = error as {
+          response?: { data?: { error?: string } };
+        }; // Cast error to a more specific type
+        toast.error(
+          axiosError?.response?.data?.error || "Error editing appointment"
+        );
       },
     });
 
