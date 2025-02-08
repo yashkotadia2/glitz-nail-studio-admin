@@ -4,6 +4,10 @@ import dbConnect from "@/lib/dbConnect"; // Assuming you have a DB connection ut
 import { sendSMS } from "@/lib/sendSMS";
 import Menu from "@/models/menu.model";
 import mongoose from "mongoose";
+import dayjs from "dayjs";
+import { isTimeOutsideWorkingHours } from "@/lib/isTimeOutsideWorkingHours";
+import { isHolidayDate } from "@/lib/isHolidayDate";
+import { isAppointmentOverlapping } from "@/lib/isAppointmentOverlapping";
 
 export async function POST(req: Request) {
   try {
@@ -21,17 +25,34 @@ export async function POST(req: Request) {
       );
     }
 
-    // Format date and time using built-in Date object
-    const formattedDate = new Date(date).toLocaleDateString("en-IN", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }); // e.g., 12 Jan 2025
+    // Check if the appointment date falls on a holiday
+    const isHoliday = await isHolidayDate(date);
 
-    const formattedTime = new Date(time).toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }); // e.g., 4:30 PM
+    if (isHoliday) {
+      return NextResponse.json(
+        {
+          error: "The selected date is a holiday, please choose another date.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (isTimeOutsideWorkingHours(time)) {
+      return NextResponse.json(
+        { error: "Appointment time is outside working hours" },
+        { status: 400 }
+      );
+    }
+
+    // Check if the appointment overlaps
+    const isOverlapping = await isAppointmentOverlapping(date, time, services);
+
+    if (isOverlapping) {
+      return NextResponse.json(
+        { error: "The selected time slot is already booked or overlapping" },
+        { status: 400 }
+      );
+    }
 
     // Fetch service names based on the provided IDs
     const serviceIds = services; // Assuming services is an array of service IDs
@@ -59,7 +80,9 @@ export async function POST(req: Request) {
       // Prepare SMS content
       const smsBody = `Hi ${name}, your appointment for: ${serviceNames.join(
         ", "
-      )} is confirmed on ${formattedDate} at ${formattedTime}. See you soon!`;
+      )} is confirmed on ${dayjs(date).format("DD/MM/YYYY")} at ${dayjs(
+        time
+      ).format("hh:mm a")}. See you soon!`;
 
       // Send SMS
       try {
