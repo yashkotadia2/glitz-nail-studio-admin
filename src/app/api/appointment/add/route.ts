@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import Appointment from "@/models/appointment.model"; // Adjust the path based on your project structure
 import dbConnect from "@/lib/dbConnect"; // Assuming you have a DB connection utility
-import { sendSMS } from "@/lib/sendSMS";
-import Menu from "@/models/menu.model";
+// import { sendSMS } from "@/lib/sendSMS";
+// import Menu from "@/models/menu.model";
 import mongoose from "mongoose";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import { isTimeOutsideWorkingHours } from "@/lib/isTimeOutsideWorkingHours";
 import { isHolidayDate } from "@/lib/isHolidayDate";
 import { isAppointmentOverlapping } from "@/lib/isAppointmentOverlapping";
@@ -55,9 +55,9 @@ export async function POST(req: Request) {
     }
 
     // Fetch service names based on the provided IDs
-    const serviceIds = services; // Assuming services is an array of service IDs
-    const serviceDocs = await Menu.find({ _id: { $in: serviceIds } }); // Fetch services from DB
-    const serviceNames = serviceDocs.map((service) => service.menuName); // Extract menu names
+    // const serviceIds = services; // Assuming services is an array of service IDs
+    // const serviceDocs = await Menu.find({ _id: { $in: serviceIds } }); // Fetch services from DB
+    // const serviceNames = serviceDocs.map((service) => service.menuName); // Extract menu names
 
     // Create a new appointment document (but don't save yet)
     const newAppointment = new Appointment({
@@ -78,15 +78,16 @@ export async function POST(req: Request) {
       await newAppointment.save({ session }); // Save with session for rollback
 
       // Prepare SMS content
-      const smsBody = `Hi ${name}, your appointment for: ${serviceNames.join(
-        ", "
-      )} is confirmed on ${dayjs(date).format("DD/MM/YYYY")} at ${dayjs(
-        time
-      ).format("hh:mm a")}. See you soon!`;
+      // const smsBody = `Hi ${name}, your appointment for: ${serviceNames.join(
+      //   ", "
+      // )} is confirmed on ${dayjs(date).format("DD/MM/YYYY")} at ${dayjs(
+      //   time
+      // ).format("hh:mm a")}. See you soon!`;
 
       // Send SMS
       try {
-        await sendSMS(number, smsBody); // Send SMS to the user
+        // await sendSMS(number, smsBody); // Send SMS to the user
+        await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate SMS delay
 
         // Commit transaction after both save and SMS success
         await session.commitTransaction();
