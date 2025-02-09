@@ -33,8 +33,6 @@ export const isAppointmentOverlapping = async (
       _id: id ? { $ne: id } : { $exists: true }, // Exclude the appointment if id is provided
     });
 
-    console.log("Appointments on the same date:", appointmentsOnSameDate);
-
     // Loop through the filtered appointments to check for time overlap
     const overlappingArray = await Promise.all(
       appointmentsOnSameDate.map(async (appointment) => {
@@ -52,31 +50,12 @@ export const isAppointmentOverlapping = async (
         const existingStartTime = dayjs(existingStart);
         const existingEndTime = dayjs(existingEnd);
 
-        console.log("Start and end times:", newStart, newEnd);
-        console.log(
-          "Existing start and end times:",
-          existingStartTime,
-          existingEndTime
-        );
-
         return (
           newStart.isSameOrBefore(existingEndTime, "minute") &&
           newEnd.isSameOrAfter(existingStartTime, "minute")
         );
-
-        // Check if the new appointment overlaps with the existing one
-        // return (
-        //   newStart.isBefore(existingEndTime) || // New appointment starts before the end of the existing one
-        //   newEnd.isAfter(existingStartTime) || // New appointment ends after the start of the existing one
-        //   (newStart.isBefore(existingStartTime) &&
-        //     newEnd.isAfter(existingEndTime)) || // New appointment fully overlaps an existing appointment
-        //   (newStart.isAfter(existingStartTime) &&
-        //     newEnd.isBefore(existingEndTime)) // New appointment is fully enclosed by an existing appointment
-        // );
       })
     );
-
-    console.log("isOverlappingXX", overlappingArray);
 
     return overlappingArray.some((overlap) => overlap);
   } catch (error) {
