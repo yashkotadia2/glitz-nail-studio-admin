@@ -21,7 +21,7 @@ export const isTimeOutsideWorkingHours = (time: string): boolean => {
     dayjs.tz.guess(),
     workingStartTime,
     workingEndTime,
-    dayjs
+    dayjs(time)
   );
 
   // Check if the time is outside the working hours (inclusive)
