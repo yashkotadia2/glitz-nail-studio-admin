@@ -1,11 +1,9 @@
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(isBetween);
 dayjs.extend(customParseFormat);
-dayjs.extend(timezone);
 
 export const isTimeOutsideWorkingHours = (time: string): boolean => {
   // Get start and end time from environment variables, default to fallback if not set
@@ -15,16 +13,12 @@ export const isTimeOutsideWorkingHours = (time: string): boolean => {
   // Convert the times to dayjs objects for comparison
   const workingStartTime = dayjs(startTime, "HH:mm");
   const workingEndTime = dayjs(endTime, "HH:mm");
-  const inputTime = dayjs.tz(time, "UTC"); // Use timezoneToUse for inputTime
-
-  console.log(
-    "DayjsTimeZoneGuess",
-    dayjs.tz.guess(),
-    workingStartTime,
-    workingEndTime,
-    inputTime
-  );
 
   // Check if the time is outside the working hours (inclusive)
-  return !inputTime.isBetween(workingStartTime, workingEndTime, "minute", "[]");
+  return !dayjs(time).isBetween(
+    workingStartTime,
+    workingEndTime,
+    "minute",
+    "[]"
+  );
 };
