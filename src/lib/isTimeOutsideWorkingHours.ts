@@ -77,30 +77,15 @@ export const isTimeOutsideWorkingHours = (time: string): boolean => {
 
   // Conditionally apply timezone conversion based on server's time zone
   if (serverTimeZone !== "Asia/Calcutta") {
-    console.log("IF: Converting times to Asia/Kolkata");
     todayWithTime = dayjs(`${today}T${inputTime}`).tz("Asia/Kolkata"); // Convert input time to Asia/Kolkata
     // Instead of combining with today's date, just apply the time zone to start and end time
     workingStartTime = dayjs.tz(startTime, "HH:mm", "Asia/Kolkata");
     workingEndTime = dayjs.tz(endTime, "HH:mm", "Asia/Kolkata");
   } else {
-    console.log("ELSE: No conversion needed");
     todayWithTime = dayjs(`${today}T${inputTime}`); // No conversion
     workingStartTime = dayjs(startTime, "HH:mm"); // No conversion
     workingEndTime = dayjs(endTime, "HH:mm"); // No conversion
   }
-
-  console.log(
-    "Server Time Zone:",
-    serverTimeZone,
-    "Input Time:",
-    time,
-    "Today with Time:",
-    todayWithTime.format(),
-    "Working Start Time:",
-    workingStartTime.format(),
-    "Working End Time:",
-    workingEndTime.format()
-  );
 
   // Check if the time is outside the working hours (inclusive)
   return !todayWithTime.isBetween(

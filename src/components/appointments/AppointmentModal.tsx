@@ -304,19 +304,7 @@ const AppointmentModal = ({
         isAppointmentsLoading
       }
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        initialValues={{
-          name: "Yash Kotadia",
-          number: "+919979972183",
-          services: ["678b61a087b0d8038981fd86"],
-          date: null,
-          time: null,
-          message: "xxydk",
-        }}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name Field */}
           <Form.Item
