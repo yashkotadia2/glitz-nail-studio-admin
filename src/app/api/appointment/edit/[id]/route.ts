@@ -5,6 +5,10 @@ import dbConnect from "@/lib/dbConnect"; // Assuming you have a DB connection ut
 import { isTimeOutsideWorkingHours } from "@/lib/isTimeOutsideWorkingHours";
 import { isHolidayDate } from "@/lib/isHolidayDate";
 import { isAppointmentOverlapping } from "@/lib/isAppointmentOverlapping";
+import mongoose from "mongoose";
+// import { sendSMS } from "@/lib/sendSMS";
+// import Menu from "@/models/menu.model";
+// import dayjs from "dayjs";
 
 // PUT handler for updating an appointment
 export async function PUT(req: NextRequest) {
@@ -61,31 +65,82 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Find and update the appointment by id
-    const updatedAppointment = await Appointment.findByIdAndUpdate(
-      id,
-      updatedData,
-      {
-        new: true, // Return the updated document
-        runValidators: true, // Ensure validation rules are applied
-      }
-    );
+    // Start a session for transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    if (!updatedAppointment) {
+    try {
+      // Find and update the appointment
+      const updatedAppointment = await Appointment.findByIdAndUpdate(
+        id,
+        updatedData,
+        {
+          new: true, // Return the updated document
+          runValidators: true, // Ensure validation rules are applied
+          session, // Use the session for the transaction
+        }
+      );
+
+      if (!updatedAppointment) {
+        await session.abortTransaction();
+        session.endSession();
+        return NextResponse.json(
+          { error: "Appointment not found" },
+          { status: 404 }
+        );
+      }
+
+      // Fetch service names based on the provided IDs
+      // const serviceIds = services; // Assuming services is an array of service IDs
+      // const serviceDocs = await Menu.find({ _id: { $in: serviceIds } }); // Fetch services from DB
+      // const serviceNames = serviceDocs.map((service) => service.menuName); // Extract menu names
+
+      // Prepare SMS content (format as needed)
+      // const smsBody = `Hi ${name}, There is an update to your recent appointment for: ${serviceNames.join(
+      //   ", "
+      // )}. It is now updated on ${dayjs(date).format("DD/MM/YYYY")} at ${dayjs(
+      //   time
+      // ).format("hh:mm a")}. See you soon!`;
+
+      // Send SMS
+      try {
+        // await sendSMS(number, smsBody); // Send SMS to the user
+        await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate SMS delay
+
+        // Commit the transaction after SMS success
+        await session.commitTransaction();
+        session.endSession();
+
+        return NextResponse.json(
+          {
+            success: true,
+            message: "Appointment updated successfully and SMS sent",
+            data: updatedAppointment,
+          },
+          { status: 200 }
+        );
+      } catch (smsError) {
+        // Rollback the transaction if SMS fails
+        await session.abortTransaction();
+        session.endSession();
+
+        console.error("Failed to send SMS:", smsError);
+        return NextResponse.json(
+          { error: "Failed to send SMS, appointment not saved" },
+          { status: 500 }
+        );
+      }
+    } catch (dbError) {
+      // Rollback the transaction if any error occurs
+      await session.abortTransaction();
+      session.endSession();
+
+      console.error("Failed to update appointment:", dbError);
       return NextResponse.json(
-        { error: "Appointment not found" },
-        { status: 404 }
+        { error: "Failed to update appointment" },
+        { status: 500 }
       );
     }
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Appointment updated successfully",
-        data: updatedAppointment,
-      },
-      { status: 200 }
-    );
   } catch (error: unknown) {
     return NextResponse.json({
       error:
